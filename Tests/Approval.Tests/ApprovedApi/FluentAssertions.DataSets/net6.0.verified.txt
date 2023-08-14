@@ -1,0 +1,189 @@
+﻿[assembly: FluentAssertions.CustomAssertionsAssembly]
+[assembly: FluentAssertions.Extensibility.AssertionEngineInitializer(typeof(FluentAssertions.DataSets.InitializeDataSetSupport), "Initialize")]
+[assembly: System.Reflection.AssemblyMetadata("RepositoryUrl", "https://github.com/fluentassertions/fluentassertions.data")]
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo(@"FluentAssertions.DataSets.Specs, PublicKey=00240000048000009400000006020000002400005253413100040000010001002d25ff515c85b13ba08f61d466cff5d80a7f28ba197bbf8796085213e7a3406f970d2a4874932fed35db546e89af2da88c194bf1b7f7ac70de7988c78406f7629c547283061282a825616eb7eb48a9514a7570942936020a9bb37dca9ff60b778309900851575614491c6d25018fadb75828f4c7a17bf2d7dc86e7b6eafc5d8f")]
+namespace FluentAssertions
+{
+    public static class AssertionExtensions
+    {
+        public static FluentAssertions.DataSets.DataColumnAssertions Should(this System.Data.DataColumn actualValue) { }
+        public static FluentAssertions.Collections.GenericCollectionAssertions<System.Data.DataColumn> Should(this System.Data.DataColumnCollection actualValue) { }
+        public static FluentAssertions.Collections.GenericCollectionAssertions<System.Data.DataRow> Should(this System.Data.DataRowCollection actualValue) { }
+        public static FluentAssertions.Collections.GenericCollectionAssertions<System.Data.DataTable> Should(this System.Data.DataTableCollection actualValue) { }
+    }
+    public static class DataColumnCollectionAssertionExtensions
+    {
+        public static FluentAssertions.AndConstraint<FluentAssertions.Collections.GenericCollectionAssertions<System.Data.DataColumn>> BeSameAs(this FluentAssertions.Collections.GenericCollectionAssertions<System.Data.DataColumn> assertion, System.Data.DataColumnCollection expected, string because = "", params object[] becauseArgs) { }
+        public static FluentAssertions.AndConstraint<FluentAssertions.Collections.GenericCollectionAssertions<System.Data.DataColumn>> HaveSameCount(this FluentAssertions.Collections.GenericCollectionAssertions<System.Data.DataColumn> assertion, System.Data.DataColumnCollection otherCollection, string because = "", params object[] becauseArgs) { }
+        public static FluentAssertions.AndConstraint<FluentAssertions.Collections.GenericCollectionAssertions<System.Data.DataColumn>> NotBeSameAs(this FluentAssertions.Collections.GenericCollectionAssertions<System.Data.DataColumn> assertion, System.Data.DataColumnCollection unexpected, string because = "", params object[] becauseArgs) { }
+        public static FluentAssertions.AndConstraint<FluentAssertions.Collections.GenericCollectionAssertions<System.Data.DataColumn>> NotHaveSameCount(this FluentAssertions.Collections.GenericCollectionAssertions<System.Data.DataColumn> assertion, System.Data.DataColumnCollection otherCollection, string because = "", params object[] becauseArgs) { }
+    }
+    public static class DataRowAssertionExtensions
+    {
+        public static FluentAssertions.DataSets.DataRowAssertions<TDataRow> Should<TDataRow>(this TDataRow actualValue)
+            where TDataRow : System.Data.DataRow { }
+    }
+    public static class DataRowCollectionAssertionExtensions
+    {
+        public static FluentAssertions.AndConstraint<FluentAssertions.Collections.GenericCollectionAssertions<System.Data.DataRow>> BeSameAs(this FluentAssertions.Collections.GenericCollectionAssertions<System.Data.DataRow> assertion, System.Data.DataRowCollection expected, string because = "", params object[] becauseArgs) { }
+        public static FluentAssertions.AndConstraint<FluentAssertions.Collections.GenericCollectionAssertions<System.Data.DataRow>> HaveSameCount(this FluentAssertions.Collections.GenericCollectionAssertions<System.Data.DataRow> assertion, System.Data.DataRowCollection otherCollection, string because = "", params object[] becauseArgs) { }
+        public static FluentAssertions.AndConstraint<FluentAssertions.Collections.GenericCollectionAssertions<System.Data.DataRow>> NotBeSameAs(this FluentAssertions.Collections.GenericCollectionAssertions<System.Data.DataRow> assertion, System.Data.DataRowCollection unexpected, string because = "", params object[] becauseArgs) { }
+        public static FluentAssertions.AndConstraint<FluentAssertions.Collections.GenericCollectionAssertions<System.Data.DataRow>> NotHaveSameCount(this FluentAssertions.Collections.GenericCollectionAssertions<System.Data.DataRow> assertion, System.Data.DataRowCollection otherCollection, string because = "", params object[] becauseArgs) { }
+    }
+    public static class DataSetAssertionExtensions
+    {
+        public static FluentAssertions.DataSets.DataSetAssertions<TDataSet> Should<TDataSet>(this TDataSet actualValue)
+            where TDataSet : System.Data.DataSet { }
+    }
+    public static class DataTableAssertionExtensions
+    {
+        public static FluentAssertions.DataTableAssertions<TDataTable> Should<TDataTable>(this TDataTable actualValue)
+            where TDataTable : System.Data.DataTable { }
+    }
+    public class DataTableAssertions<TDataTable> : FluentAssertions.Primitives.ReferenceTypeAssertions<System.Data.DataTable, FluentAssertions.DataTableAssertions<TDataTable>>
+        where TDataTable : System.Data.DataTable
+    {
+        public DataTableAssertions(TDataTable dataTable) { }
+        protected override string Identifier { get; }
+        public FluentAssertions.AndConstraint<FluentAssertions.DataTableAssertions<TDataTable>> BeEquivalentTo(System.Data.DataTable expectation, string because = "", params object[] becauseArgs) { }
+        public FluentAssertions.AndConstraint<FluentAssertions.DataTableAssertions<TDataTable>> BeEquivalentTo(System.Data.DataTable expectation, System.Func<FluentAssertions.DataSets.IDataEquivalencyAssertionOptions<System.Data.DataTable>, FluentAssertions.DataSets.IDataEquivalencyAssertionOptions<System.Data.DataTable>> config, string because = "", params object[] becauseArgs) { }
+        public FluentAssertions.AndWhichConstraint<FluentAssertions.DataTableAssertions<TDataTable>, System.Data.DataColumn> HaveColumn(string expectedColumnName, string because = "", params object[] becauseArgs) { }
+        public FluentAssertions.AndConstraint<FluentAssertions.DataTableAssertions<TDataTable>> HaveColumns(params string[] expectedColumnNames) { }
+        public FluentAssertions.AndConstraint<FluentAssertions.DataTableAssertions<TDataTable>> HaveColumns(System.Collections.Generic.IEnumerable<string> expectedColumnNames, string because = "", params object[] becauseArgs) { }
+        public FluentAssertions.AndConstraint<FluentAssertions.DataTableAssertions<TDataTable>> HaveRowCount(int expected, string because = "", params object[] becauseArgs) { }
+    }
+    public static class DataTableCollectionAssertionExtensions
+    {
+        public static FluentAssertions.AndConstraint<FluentAssertions.Collections.GenericCollectionAssertions<System.Data.DataTable>> BeSameAs(this FluentAssertions.Collections.GenericCollectionAssertions<System.Data.DataTable> assertion, System.Data.DataTableCollection expected, string because = "", params object[] becauseArgs) { }
+        public static FluentAssertions.AndConstraint<FluentAssertions.Collections.GenericCollectionAssertions<System.Data.DataTable>> HaveSameCount(this FluentAssertions.Collections.GenericCollectionAssertions<System.Data.DataTable> assertion, System.Data.DataSet otherDataSet, string because = "", params object[] becauseArgs) { }
+        public static FluentAssertions.AndConstraint<FluentAssertions.Collections.GenericCollectionAssertions<System.Data.DataTable>> HaveSameCount(this FluentAssertions.Collections.GenericCollectionAssertions<System.Data.DataTable> assertion, System.Data.DataTableCollection otherCollection, string because = "", params object[] becauseArgs) { }
+        public static FluentAssertions.AndConstraint<FluentAssertions.Collections.GenericCollectionAssertions<System.Data.DataTable>> NotBeSameAs(this FluentAssertions.Collections.GenericCollectionAssertions<System.Data.DataTable> assertion, System.Data.DataTableCollection unexpected, string because = "", params object[] becauseArgs) { }
+        public static FluentAssertions.AndConstraint<FluentAssertions.Collections.GenericCollectionAssertions<System.Data.DataTable>> NotHaveSameCount(this FluentAssertions.Collections.GenericCollectionAssertions<System.Data.DataTable> assertion, System.Data.DataSet otherDataSet, string because = "", params object[] becauseArgs) { }
+        public static FluentAssertions.AndConstraint<FluentAssertions.Collections.GenericCollectionAssertions<System.Data.DataTable>> NotHaveSameCount(this FluentAssertions.Collections.GenericCollectionAssertions<System.Data.DataTable> assertion, System.Data.DataTableCollection otherCollection, string because = "", params object[] becauseArgs) { }
+    }
+}
+namespace FluentAssertions.DataSets.Common
+{
+    public interface ICollectionWrapper<TCollection>
+        where TCollection : System.Collections.ICollection
+    {
+        TCollection UnderlyingCollection { get; }
+    }
+}
+namespace FluentAssertions.DataSets
+{
+    public class DataColumnAssertions : FluentAssertions.Primitives.ReferenceTypeAssertions<System.Data.DataColumn, FluentAssertions.DataSets.DataColumnAssertions>
+    {
+        public DataColumnAssertions(System.Data.DataColumn dataColumn) { }
+        protected override string Identifier { get; }
+        public FluentAssertions.AndConstraint<FluentAssertions.DataSets.DataColumnAssertions> BeEquivalentTo(System.Data.DataColumn expectation, string because = "", params object[] becauseArgs) { }
+        public FluentAssertions.AndConstraint<FluentAssertions.DataSets.DataColumnAssertions> BeEquivalentTo(System.Data.DataColumn expectation, System.Func<FluentAssertions.DataSets.IDataEquivalencyAssertionOptions<System.Data.DataColumn>, FluentAssertions.DataSets.IDataEquivalencyAssertionOptions<System.Data.DataColumn>> config, string because = "", params object[] becauseArgs) { }
+    }
+    public class DataRowAssertions<TDataRow> : FluentAssertions.Primitives.ReferenceTypeAssertions<TDataRow, FluentAssertions.DataSets.DataRowAssertions<TDataRow>>
+        where TDataRow : System.Data.DataRow
+    {
+        public DataRowAssertions(TDataRow dataRow) { }
+        protected override string Identifier { get; }
+        public FluentAssertions.AndConstraint<FluentAssertions.DataSets.DataRowAssertions<TDataRow>> BeEquivalentTo(System.Data.DataRow expectation, string because = "", params object[] becauseArgs) { }
+        public FluentAssertions.AndConstraint<FluentAssertions.DataSets.DataRowAssertions<TDataRow>> BeEquivalentTo(System.Data.DataRow expectation, System.Func<FluentAssertions.DataSets.IDataEquivalencyAssertionOptions<System.Data.DataRow>, FluentAssertions.DataSets.IDataEquivalencyAssertionOptions<System.Data.DataRow>> config, string because = "", params object[] becauseArgs) { }
+        public FluentAssertions.AndWhichConstraint<FluentAssertions.DataSets.DataRowAssertions<TDataRow>, System.Data.DataColumn> HaveColumn(string expectedColumnName, string because = "", params object[] becauseArgs) { }
+        public FluentAssertions.AndConstraint<FluentAssertions.DataSets.DataRowAssertions<TDataRow>> HaveColumns(params string[] expectedColumnNames) { }
+        public FluentAssertions.AndConstraint<FluentAssertions.DataSets.DataRowAssertions<TDataRow>> HaveColumns(System.Collections.Generic.IEnumerable<string> expectedColumnNames, string because = "", params object[] becauseArgs) { }
+    }
+    public class DataSetAssertions<TDataSet> : FluentAssertions.Primitives.ReferenceTypeAssertions<System.Data.DataSet, FluentAssertions.DataSets.DataSetAssertions<TDataSet>>
+        where TDataSet : System.Data.DataSet
+    {
+        public DataSetAssertions(TDataSet dataSet) { }
+        protected override string Identifier { get; }
+        public FluentAssertions.AndConstraint<FluentAssertions.DataSets.DataSetAssertions<TDataSet>> BeEquivalentTo(System.Data.DataSet expectation, string because = "", params object[] becauseArgs) { }
+        public FluentAssertions.AndConstraint<FluentAssertions.DataSets.DataSetAssertions<TDataSet>> BeEquivalentTo(System.Data.DataSet expectation, System.Func<FluentAssertions.DataSets.IDataEquivalencyAssertionOptions<System.Data.DataSet>, FluentAssertions.DataSets.IDataEquivalencyAssertionOptions<System.Data.DataSet>> config, string because = "", params object[] becauseArgs) { }
+        public FluentAssertions.AndWhichConstraint<FluentAssertions.DataSets.DataSetAssertions<TDataSet>, System.Data.DataTable> HaveTable(string expectedTableName, string because = "", params object[] becauseArgs) { }
+        public FluentAssertions.AndConstraint<FluentAssertions.DataSets.DataSetAssertions<TDataSet>> HaveTableCount(int expected, string because = "", params object[] becauseArgs) { }
+        public FluentAssertions.AndConstraint<FluentAssertions.DataSets.DataSetAssertions<TDataSet>> HaveTables(params string[] expectedTableNames) { }
+        public FluentAssertions.AndConstraint<FluentAssertions.DataSets.DataSetAssertions<TDataSet>> HaveTables(System.Collections.Generic.IEnumerable<string> expectedTableNames, string because = "", params object[] becauseArgs) { }
+    }
+    public static class EquivalencyAssertionOptionsExtensions
+    {
+        public static void AddDataSetSupport(this FluentAssertions.EquivalencyPlan plan) { }
+    }
+    public interface IDataEquivalencyAssertionOptions<T> : FluentAssertions.Equivalency.IEquivalencyAssertionOptions
+    {
+        FluentAssertions.DataSets.IDataEquivalencyAssertionOptions<T> AllowingMismatchedTypes();
+        FluentAssertions.DataSets.IDataEquivalencyAssertionOptions<T> Excluding(System.Linq.Expressions.Expression<System.Func<FluentAssertions.Equivalency.IMemberInfo, bool>> predicate);
+        FluentAssertions.DataSets.IDataEquivalencyAssertionOptions<T> Excluding(System.Linq.Expressions.Expression<System.Func<T, object>> expression);
+        FluentAssertions.DataSets.IDataEquivalencyAssertionOptions<T> ExcludingColumn(System.Data.DataColumn column);
+        FluentAssertions.DataSets.IDataEquivalencyAssertionOptions<T> ExcludingColumn(string tableName, string columnName);
+        FluentAssertions.DataSets.IDataEquivalencyAssertionOptions<T> ExcludingColumnInAllTables(string columnName);
+        FluentAssertions.DataSets.IDataEquivalencyAssertionOptions<T> ExcludingColumns(System.Collections.Generic.IEnumerable<System.Data.DataColumn> columns);
+        FluentAssertions.DataSets.IDataEquivalencyAssertionOptions<T> ExcludingColumns(params System.Data.DataColumn[] columns);
+        FluentAssertions.DataSets.IDataEquivalencyAssertionOptions<T> ExcludingColumns(string tableName, System.Collections.Generic.IEnumerable<string> columnNames);
+        FluentAssertions.DataSets.IDataEquivalencyAssertionOptions<T> ExcludingColumns(string tableName, params string[] columnNames);
+        FluentAssertions.DataSets.IDataEquivalencyAssertionOptions<T> ExcludingColumnsInAllTables(System.Collections.Generic.IEnumerable<string> columnNames);
+        FluentAssertions.DataSets.IDataEquivalencyAssertionOptions<T> ExcludingColumnsInAllTables(params string[] columnNames);
+        FluentAssertions.DataSets.IDataEquivalencyAssertionOptions<T> ExcludingOriginalData();
+        FluentAssertions.DataSets.IDataEquivalencyAssertionOptions<T> ExcludingRelated(System.Linq.Expressions.Expression<System.Func<System.Data.Constraint, object>> expression);
+        FluentAssertions.DataSets.IDataEquivalencyAssertionOptions<T> ExcludingRelated(System.Linq.Expressions.Expression<System.Func<System.Data.DataColumn, object>> expression);
+        FluentAssertions.DataSets.IDataEquivalencyAssertionOptions<T> ExcludingRelated(System.Linq.Expressions.Expression<System.Func<System.Data.DataRelation, object>> expression);
+        FluentAssertions.DataSets.IDataEquivalencyAssertionOptions<T> ExcludingRelated(System.Linq.Expressions.Expression<System.Func<System.Data.DataRow, object>> expression);
+        FluentAssertions.DataSets.IDataEquivalencyAssertionOptions<T> ExcludingRelated(System.Linq.Expressions.Expression<System.Func<System.Data.DataTable, object>> expression);
+        FluentAssertions.DataSets.IDataEquivalencyAssertionOptions<T> ExcludingRelated(System.Linq.Expressions.Expression<System.Func<System.Data.ForeignKeyConstraint, object>> expression);
+        FluentAssertions.DataSets.IDataEquivalencyAssertionOptions<T> ExcludingRelated(System.Linq.Expressions.Expression<System.Func<System.Data.UniqueConstraint, object>> expression);
+        FluentAssertions.DataSets.IDataEquivalencyAssertionOptions<T> ExcludingTable(string tableName);
+        FluentAssertions.DataSets.IDataEquivalencyAssertionOptions<T> ExcludingTables(System.Collections.Generic.IEnumerable<string> tableNames);
+        FluentAssertions.DataSets.IDataEquivalencyAssertionOptions<T> ExcludingTables(params string[] tableNames);
+        FluentAssertions.DataSets.IDataEquivalencyAssertionOptions<T> IgnoringUnmatchedColumns();
+        FluentAssertions.DataSets.IDataEquivalencyAssertionOptions<T> UsingRowMatchMode(FluentAssertions.DataSets.RowMatchMode rowMatchMode);
+    }
+    public static class InitializeDataSetSupport
+    {
+        public static void Initialize() { }
+    }
+    public enum RowMatchMode
+    {
+        Index = 0,
+        PrimaryKey = 1,
+    }
+}
+namespace FluentAssertions.DataSets.Equivalency
+{
+    public class ConstraintCollectionEquivalencyStep : FluentAssertions.Equivalency.EquivalencyStep<System.Data.ConstraintCollection>
+    {
+        public ConstraintCollectionEquivalencyStep() { }
+        protected override FluentAssertions.Equivalency.EquivalencyResult OnHandle(FluentAssertions.Equivalency.Comparands comparands, FluentAssertions.Equivalency.IEquivalencyValidationContext context, FluentAssertions.Equivalency.IEquivalencyValidator nestedValidator) { }
+    }
+    public class ConstraintEquivalencyStep : FluentAssertions.Equivalency.EquivalencyStep<System.Data.Constraint>
+    {
+        public ConstraintEquivalencyStep() { }
+        protected override FluentAssertions.Equivalency.EquivalencyResult OnHandle(FluentAssertions.Equivalency.Comparands comparands, FluentAssertions.Equivalency.IEquivalencyValidationContext context, FluentAssertions.Equivalency.IEquivalencyValidator nestedValidator) { }
+    }
+    public class DataColumnEquivalencyStep : FluentAssertions.Equivalency.EquivalencyStep<System.Data.DataColumn>
+    {
+        public DataColumnEquivalencyStep() { }
+        protected override FluentAssertions.Equivalency.EquivalencyResult OnHandle(FluentAssertions.Equivalency.Comparands comparands, FluentAssertions.Equivalency.IEquivalencyValidationContext context, FluentAssertions.Equivalency.IEquivalencyValidator nestedValidator) { }
+    }
+    public class DataRelationEquivalencyStep : FluentAssertions.Equivalency.EquivalencyStep<System.Data.DataRelation>
+    {
+        public DataRelationEquivalencyStep() { }
+        protected override FluentAssertions.Equivalency.EquivalencyResult OnHandle(FluentAssertions.Equivalency.Comparands comparands, FluentAssertions.Equivalency.IEquivalencyValidationContext context, FluentAssertions.Equivalency.IEquivalencyValidator nestedValidator) { }
+    }
+    public class DataRowCollectionEquivalencyStep : FluentAssertions.Equivalency.EquivalencyStep<System.Data.DataRowCollection>
+    {
+        public DataRowCollectionEquivalencyStep() { }
+        protected override FluentAssertions.Equivalency.EquivalencyResult OnHandle(FluentAssertions.Equivalency.Comparands comparands, FluentAssertions.Equivalency.IEquivalencyValidationContext context, FluentAssertions.Equivalency.IEquivalencyValidator nestedValidator) { }
+    }
+    public class DataRowEquivalencyStep : FluentAssertions.Equivalency.EquivalencyStep<System.Data.DataRow>
+    {
+        public DataRowEquivalencyStep() { }
+        protected override FluentAssertions.Equivalency.EquivalencyResult OnHandle(FluentAssertions.Equivalency.Comparands comparands, FluentAssertions.Equivalency.IEquivalencyValidationContext context, FluentAssertions.Equivalency.IEquivalencyValidator nestedValidator) { }
+    }
+    public class DataSetEquivalencyStep : FluentAssertions.Equivalency.EquivalencyStep<System.Data.DataSet>
+    {
+        public DataSetEquivalencyStep() { }
+        protected override FluentAssertions.Equivalency.EquivalencyResult OnHandle(FluentAssertions.Equivalency.Comparands comparands, FluentAssertions.Equivalency.IEquivalencyValidationContext context, FluentAssertions.Equivalency.IEquivalencyValidator nestedValidator) { }
+    }
+    public class DataTableEquivalencyStep : FluentAssertions.Equivalency.EquivalencyStep<System.Data.DataTable>
+    {
+        public DataTableEquivalencyStep() { }
+        protected override FluentAssertions.Equivalency.EquivalencyResult OnHandle(FluentAssertions.Equivalency.Comparands comparands, FluentAssertions.Equivalency.IEquivalencyValidationContext context, FluentAssertions.Equivalency.IEquivalencyValidator nestedValidator) { }
+    }
+}

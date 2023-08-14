@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net6;net472</TargetFrameworks>
+    <SignAssembly>True</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\..\Src\FluentAssertions.DataSets\FluentAssertions.snk</AssemblyOriginatorKeyFile>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.13.6" />
+    <PackageReference Include="Bogus" Version="34.0.2" />
+    <PackageReference Include="System.Collections" Version="4.3.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="FluentAssertions">
+      <HintPath>..\..\..\fluentassertions\Src\FluentAssertions\bin\Debug\net6.0\FluentAssertions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions" Condition="'$(TargetFramework)' == 'net472'" />
+    <Reference Include="System.Net.Http" Condition="'$(TargetFramework)' == 'net472'" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Src\FluentAssertions.DataSets\FluentAssertions.DataSets.csproj" />
+  </ItemGroup>
+</Project>
