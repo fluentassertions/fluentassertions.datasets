@@ -408,7 +408,7 @@ public class DataSpecs
             }
         }
 
-        private void CopyTable<TDataTable, TDataRow>(TDataTable from, TDataTable to, bool randomizeRowOrder)
+        private static void CopyTable<TDataTable, TDataRow>(TDataTable from, TDataTable to, bool randomizeRowOrder)
             where TDataTable : DataTable, IEnumerable<TDataRow>
             where TDataRow : DataRow
         {

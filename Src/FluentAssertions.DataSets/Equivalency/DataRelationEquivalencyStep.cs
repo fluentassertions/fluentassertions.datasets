@@ -15,9 +15,8 @@ public class DataRelationEquivalencyStep : EquivalencyStep<DataRelation>
         IEquivalencyValidator nestedValidator)
     {
         var subject = comparands.Subject as DataRelation;
-        var expectation = comparands.Expectation as DataRelation;
 
-        if (expectation is null)
+        if (comparands.Expectation is not DataRelation expectation)
         {
             if (subject is not null)
             {
