@@ -2,7 +2,7 @@
 using System.Data;
 using System.Linq;
 using FluentAssertions.Collections;
-using FluentAssertions.Common;
+using FluentAssertions.DataSets;
 using FluentAssertions.DataSets.Common;
 using FluentAssertions.Execution;
 

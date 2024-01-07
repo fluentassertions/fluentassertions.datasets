@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
-using FluentAssertions.DataSets;
 using FluentAssertions.DataSets.Common;
 using FluentAssertions.Equivalency;
 using FluentAssertions.Execution;
 using FluentAssertions.Primitives;
 
-namespace FluentAssertions;
+namespace FluentAssertions.DataSets;
 
 /// <summary>
 /// Provides convenient assertion methods on a <see cref="DataTable"/> that can be

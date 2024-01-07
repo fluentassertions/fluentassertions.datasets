@@ -5,7 +5,6 @@ using LibGit2Sharp;
 using Nuke.Common;
 using Nuke.Common.CI.GitHubActions;
 using Nuke.Common.Execution;
-using Nuke.Common.Git;
 using Nuke.Common.IO;
 using Nuke.Common.ProjectModel;
 using Nuke.Common.Tooling;
@@ -41,8 +40,6 @@ class Build : NukeBuild
 
     string BuildNumber => GitHubActions?.RunNumber.ToString();
 
-    string PullRequestBase => GitHubActions?.BaseRef;
-
     [Parameter("Use this parameter if you encounter build problems in any way, " +
         "to generate a .binlog file which holds some useful information.")]
     readonly bool? GenerateBinLog;
@@ -56,9 +53,6 @@ class Build : NukeBuild
 
     [GitVersion(Framework = "net6.0", NoCache = true, NoFetch = true)]
     readonly GitVersion GitVersion;
-
-    [GitRepository]
-    readonly GitRepository GitRepository;
 
     AbsolutePath ArtifactsDirectory => RootDirectory / "Artifacts";
 
@@ -148,6 +142,7 @@ class Build : NukeBuild
     Target UnitTestsNetFramework => _ => _
         .Unlisted()
         .DependsOn(Compile)
+        .OnlyWhenStatic(() => EnvironmentInfo.IsWin)
         .Executes(() =>
         {
             string[] testAssemblies = Projects

@@ -14,9 +14,8 @@ public class DataColumnEquivalencyStep : EquivalencyStep<DataColumn>
         IEquivalencyValidator nestedValidator)
     {
         var subject = comparands.Subject as DataColumn;
-        var expectation = comparands.Expectation as DataColumn;
 
-        if (expectation is null)
+        if (comparands.Expectation is not DataColumn expectation)
         {
             if (subject is not null)
             {

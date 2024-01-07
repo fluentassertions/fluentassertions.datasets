@@ -50,7 +50,7 @@ public class ApiApproval
     private static string GetSourceDirectory([CallerFilePath] string path = "") => Path.GetDirectoryName(path);
 
     // Copied from https://github.com/VerifyTests/Verify.DiffPlex/blob/master/src/Verify.DiffPlex/VerifyDiffPlex.cs
-    public static Task<CompareResult> OnlyIncludeChanges(string received, string verified, IReadOnlyDictionary<string, object> _)
+    private static Task<CompareResult> OnlyIncludeChanges(string received, string verified, IReadOnlyDictionary<string, object> _)
     {
         var diff = InlineDiffBuilder.Diff(verified, received);
 

@@ -4,18 +4,18 @@
 [![Coveralls branch](https://img.shields.io/coverallsCoverage/github/fluentassertions/fluentassertions.datasets?branch=develop)](https://coveralls.io/github/fluentassertions/fluentassertions.datasets?branch=develop)
 [![](https://img.shields.io/github/release/FluentAssertions.Datasets/FluentAssertions.Datasets.svg?label=latest%20release&color=007edf)](https://github.com/FluentAssertions/FluentAssertions.DataSets/releases/latest)
 [![](https://img.shields.io/nuget/dt/FluentAssertions.DataSets.svg?label=downloads&color=007edf&logo=nuget)](https://www.nuget.org/packages/FluentAssertions.DataSets)
-[![](https://img.shields.io/librariesio/dependents/nuget/FluentAssertions.DataSets.svg?label=dependent%20libraries)](https://libraries.io/nuget/FluentAssertions.Data)
+[![](https://img.shields.io/librariesio/dependents/nuget/FluentAssertions.DataSets.svg?label=dependent%20libraries)](https://libraries.io/nuget/FluentAssertions.DataSets)
 [![GitHub Repo stars](https://img.shields.io/github/stars/fluentassertions/fluentassertions.datasets)](https://github.com/fluentassertions/fluentassertions.datasets/stargazers)
 [![GitHub contributors](https://img.shields.io/github/contributors/fluentassertions/fluentassertions.datasets)](https://github.com/fluentassertions/fluentassertions.datasets/graphs/contributors)
-[![GitHub last commit](https://img.shields.io/github/last-commit/fluentassertions/fluentassertions.datasets)](https://github.com/fluentassertions/fluentassertions.data)
-[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/fluentassertions/fluentassertions.data)](https://github.com/fluentassertions/fluentassertions.data/graphs/commit-activity)
-[![open issues](https://img.shields.io/github/issues/fluentassertions/fluentassertions.data)](https://github.com/fluentassertions/fluentassertions.data/issues)
+[![GitHub last commit](https://img.shields.io/github/last-commit/fluentassertions/fluentassertions.datasets)](https://github.com/fluentassertions/fluentassertions.datasets)
+[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/fluentassertions/fluentassertions.datasets)](https://github.com/fluentassertions/fluentassertions.datasets/graphs/commit-activity)
+[![open issues](https://img.shields.io/github/issues/fluentassertions/fluentassertions.datasets)](https://github.com/fluentassertions/fluentassertions.datasets/issues)
 ![](https://img.shields.io/badge/release%20strategy-githubflow-orange.svg)
 
 Extends https://www.fluentassertions.com with specialized assertions for dealing with `DataSet`, `DataTable`, `DataRow` and `DataColumn`
 
 > [!WARNING]
-> This set of extensions was extracted from Fluent Assertions 6 and is in maintenance mode. Pull Requests will still be accepted, but we will not actively work on improvements or bugs. 
+> This set of extensions was extracted from Fluent Assertions 6 and is in maintenance mode. Pull Requests will still be accepted, but we will not actively work on improvements or bugs.
 
 # Information
 * Uses [Semantic Versioning](https://semver.org/lang/nl/)
@@ -24,7 +24,7 @@ Extends https://www.fluentassertions.com with specialized assertions for dealing
 
 # Installation
 
-This package is shipped as a [NuGet package](https://www.nuget.org/packages/FluentAssertions.Data) and can be installed through the CLI using:
+This package is shipped as a [NuGet package](https://www.nuget.org/packages/FluentAssertions.DataSets) and can be installed through the CLI using:
 
     dotnet add package FluentAssertions.DataSets
 
@@ -33,8 +33,8 @@ This package is shipped as a [NuGet package](https://www.nuget.org/packages/Flue
 ## Prerequisites
 
 * Visual Studio 2022 or JetBrains Rider 2021.3
-* Build Tools 2022 (including the Universal Windows Platform build tools). 
-* .NET Framework 4.7 SDK 
+* Build Tools 2022 (including the Universal Windows Platform build tools).
+* .NET Framework 4.7 SDK
 * .NET 7.0 SDK installed. Check the `global.json`` for the current minimum required version.
 
 ## Building

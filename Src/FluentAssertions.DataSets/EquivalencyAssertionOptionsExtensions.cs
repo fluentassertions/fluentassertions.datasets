@@ -2,7 +2,6 @@
 using System.Linq;
 using FluentAssertions.DataSets.Equivalency;
 using FluentAssertions.Equivalency.Steps;
-using FluentAssertions.Xml;
 
 namespace FluentAssertions.DataSets;
 

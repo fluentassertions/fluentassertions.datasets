@@ -14,25 +14,17 @@
   </PropertyGroup>
 
   <PropertyGroup Label="Package info">
-    <Authors>Dennis Doomen;Jonas Nyrup</Authors>
+    <Authors>Dennis Doomen;Jonathan Gilbert</Authors>
     <PackageDescription>
       Extensions to Fluent Assertions for dealing with DataSets and DataTables.
     </PackageDescription>
     <PackageProjectUrl>https://www.fluentassertions.com</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/fluentassertions/fluentassertions.data</RepositoryUrl>
+    <RepositoryUrl>https://github.com/fluentassertions/fluentassertions.datasets</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageIcon>FluentAssertions.png</PackageIcon>
     <PackageReleaseNotes>See https://fluentassertions.com/releases/</PackageReleaseNotes>
     <Copyright>Copyright Dennis Doomen 2010-$([System.DateTime]::Now.ToString(yyyy))</Copyright>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <WarningsAsErrors>;NU1605;NU5104</WarningsAsErrors>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <WarningsAsErrors>;NU1605;NU5104</WarningsAsErrors>
   </PropertyGroup>
 
   <ItemGroup Label="Internals visible to">
@@ -59,25 +51,9 @@
       <PackagePath>contentFiles\any\any\</PackagePath>
     </None>
   </ItemGroup>
-  
-  <!-- Target framework dependent configuration -->
-  <Choose>
-    <When Condition="'$(TargetFramework)' == 'net6.0'">
-      <ItemGroup>
-      </ItemGroup>
-      <ItemGroup>
-        <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.4.0" />
-      </ItemGroup>
-    </When>
-    <When Condition="'$(TargetFramework)' == 'net47'">
-      <ItemGroup>
-      </ItemGroup>
-      <ItemGroup>
-        <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.0" />
-        <Reference Include="System.Configuration" />
-        <Reference Include="System.Data" />
-      </ItemGroup>
-    </When>
-  </Choose>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net47'">
+    <Reference Include="System.Data" />
+  </ItemGroup>
 
 </Project>

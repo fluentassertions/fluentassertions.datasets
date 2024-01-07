@@ -14,9 +14,8 @@ public class DataTableEquivalencyStep : EquivalencyStep<DataTable>
         IEquivalencyValidator nestedValidator)
     {
         var subject = comparands.Subject as DataTable;
-        var expectation = comparands.Expectation as DataTable;
 
-        if (expectation is null)
+        if (comparands.Expectation is not DataTable expectation)
         {
             if (subject is not null)
             {

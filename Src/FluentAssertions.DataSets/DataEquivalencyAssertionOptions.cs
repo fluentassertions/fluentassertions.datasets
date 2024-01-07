@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq.Expressions;
 using System.Reflection;
-using FluentAssertions.DataSets.Equivalency;
 using FluentAssertions.Equivalency;
 
 namespace FluentAssertions.DataSets;
@@ -127,8 +126,7 @@ internal class DataEquivalencyAssertionOptions<T> : EquivalencyAssertionOptions<
 
     private static MemberInfo GetMemberAccessTargetMember(Expression expression)
     {
-        if (expression is UnaryExpression unaryExpression
-            && unaryExpression.NodeType == ExpressionType.Convert)
+        if (expression is UnaryExpression { NodeType: ExpressionType.Convert } unaryExpression)
         {
             // If the expression is a value type, then accessing it will involve an
             // implicit boxing conversion to type object that we need to ignore.
@@ -257,12 +255,7 @@ internal class DataEquivalencyAssertionOptions<T> : EquivalencyAssertionOptions<
             return true;
         }
 
-        if (excludeColumnNamesByTableName.TryGetValue(column.Table.TableName, out HashSet<string> excludeColumnsForTable)
-            && excludeColumnsForTable.Contains(column.ColumnName))
-        {
-            return true;
-        }
-
-        return false;
+        return excludeColumnNamesByTableName.TryGetValue(column.Table.TableName, out HashSet<string> excludeColumnsForTable)
+            && excludeColumnsForTable.Contains(column.ColumnName);
     }
 }

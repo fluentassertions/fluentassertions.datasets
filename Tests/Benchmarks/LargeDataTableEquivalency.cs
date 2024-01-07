@@ -4,6 +4,7 @@ using System.Linq;
 using BenchmarkDotNet.Attributes;
 using Bogus;
 using FluentAssertions;
+using FluentAssertions.DataSets;
 
 namespace Benchmarks;
 

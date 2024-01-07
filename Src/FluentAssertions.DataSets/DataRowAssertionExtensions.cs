@@ -3,6 +3,7 @@ using System.Diagnostics;
 using FluentAssertions.DataSets;
 using JetBrains.Annotations;
 
+// ReSharper disable once CheckNamespace
 namespace FluentAssertions;
 
 /// <summary>
