@@ -16,9 +16,8 @@ public class DataRowEquivalencyStep : EquivalencyStep<DataRow>
         IEquivalencyValidator nestedValidator)
     {
         var subject = comparands.Subject as DataRow;
-        var expectation = comparands.Expectation as DataRow;
 
-        if (expectation is null)
+        if (comparands.Expectation is not DataRow expectation)
         {
             if (subject is not null)
             {

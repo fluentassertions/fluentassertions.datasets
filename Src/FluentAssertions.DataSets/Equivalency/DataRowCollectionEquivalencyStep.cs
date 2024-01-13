@@ -201,12 +201,7 @@ public class DataRowCollectionEquivalencyStep : EquivalencyStep<DataRowCollectio
                 return false;
             }
 
-            if (values.Length != other.values.Length)
-            {
-                return false;
-            }
-
-            return values.SequenceEqual(other.values);
+            return values.Length == other.values.Length && values.SequenceEqual(other.values);
         }
 
         public override bool Equals(object obj) => Equals(obj as CompoundKey);
