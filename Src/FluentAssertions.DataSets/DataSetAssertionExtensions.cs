@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using System.Diagnostics;
 using FluentAssertions.DataSets;
+using FluentAssertions.Execution;
 using JetBrains.Annotations;
 
 namespace FluentAssertions;
@@ -19,6 +20,6 @@ public static class DataSetAssertionExtensions
     public static DataSetAssertions<TDataSet> Should<TDataSet>(this TDataSet actualValue)
         where TDataSet : DataSet
     {
-        return new DataSetAssertions<TDataSet>(actualValue);
+        return new DataSetAssertions<TDataSet>(actualValue, AssertionChain.GetOrCreate());
     }
 }

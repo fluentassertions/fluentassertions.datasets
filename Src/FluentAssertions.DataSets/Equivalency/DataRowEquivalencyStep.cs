@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using FluentAssertions.DataSets.Common;
 using FluentAssertions.Equivalency;
 using FluentAssertions.Execution;
 
@@ -13,26 +14,27 @@ public class DataRowEquivalencyStep : EquivalencyStep<DataRow>
 {
     [SuppressMessage("Style", "IDE0019:Use pattern matching", Justification = "The code is easier to read without it.")]
     protected override EquivalencyResult OnHandle(Comparands comparands, IEquivalencyValidationContext context,
-        IEquivalencyValidator nestedValidator)
+        IValidateChildNodeEquivalency nestedValidator)
     {
+        var assertionChain = AssertionChain.GetOrCreate().For(context);
         var subject = comparands.Subject as DataRow;
 
         if (comparands.Expectation is not DataRow expectation)
         {
             if (subject is not null)
             {
-                AssertionScope.Current.FailWith("Expected {context:DataRow} value to be null, but found {0}", subject);
+                assertionChain.FailWith("Expected {context:DataRow} value to be null, but found {0}", subject);
             }
         }
         else if (subject is null)
         {
             if (comparands.Subject is null)
             {
-                AssertionScope.Current.FailWith("Expected {context:DataRow} to be non-null, but found null");
+                assertionChain.FailWith("Expected {context:DataRow} to be non-null, but found null");
             }
             else
             {
-                AssertionScope.Current.FailWith("Expected {context:DataRow} to be of type {0}, but found {1} instead",
+                assertionChain.FailWith("Expected {context:DataRow} to be of type {0}, but found {1} instead",
                     expectation.GetType(), comparands.Subject.GetType());
             }
         }
@@ -46,7 +48,7 @@ public class DataRowEquivalencyStep : EquivalencyStep<DataRow>
                 && dataTableConfig?.AllowMismatchedTypes != true
                 && dataRowConfig?.AllowMismatchedTypes != true)
             {
-                AssertionScope.Current
+                assertionChain
                     .ForCondition(subject.GetType() == expectation.GetType())
                     .FailWith("Expected {context:DataRow} to be of type {0}{reason}, but found {1}",
                         expectation.GetType(), subject.GetType());
@@ -55,22 +57,22 @@ public class DataRowEquivalencyStep : EquivalencyStep<DataRow>
             SelectedDataRowMembers selectedMembers =
                 GetMembersFromExpectation(comparands, context.CurrentNode, context.Options);
 
-            CompareScalarProperties(subject, expectation, selectedMembers);
+            CompareScalarProperties(subject, expectation, selectedMembers, assertionChain);
 
             CompareFieldValues(context, nestedValidator, subject, expectation, dataSetConfig, dataTableConfig,
-                dataRowConfig);
+                dataRowConfig, assertionChain);
         }
 
-        return EquivalencyResult.AssertionCompleted;
+        return EquivalencyResult.EquivalencyProven;
     }
 
-    private static void CompareScalarProperties(DataRow subject, DataRow expectation, SelectedDataRowMembers selectedMembers)
+    private static void CompareScalarProperties(DataRow subject, DataRow expectation, SelectedDataRowMembers selectedMembers, AssertionChain assertionChain)
     {
         // Note: The members here are listed in the XML documentation for the DataRow.BeEquivalentTo extension
         // method in DataRowAssertions.cs. If this ever needs to change, keep them in sync.
         if (selectedMembers.HasErrors)
         {
-            AssertionScope.Current
+            assertionChain
                 .ForCondition(subject.HasErrors == expectation.HasErrors)
                 .FailWith("Expected {context:DataRow} to have HasErrors value of {0}{reason}, but found {1} instead",
                     expectation.HasErrors, subject.HasErrors);
@@ -78,7 +80,7 @@ public class DataRowEquivalencyStep : EquivalencyStep<DataRow>
 
         if (selectedMembers.RowState)
         {
-            AssertionScope.Current
+            assertionChain
                 .ForCondition(subject.RowState == expectation.RowState)
                 .FailWith("Expected {context:DataRow} to have RowState value of {0}{reason}, but found {1} instead",
                     expectation.RowState, subject.RowState);
@@ -87,9 +89,10 @@ public class DataRowEquivalencyStep : EquivalencyStep<DataRow>
 
     [SuppressMessage("Maintainability", "AV1561:Signature contains too many parameters", Justification = "Needs to be refactored")]
     [SuppressMessage("Design", "MA0051:Method is too long", Justification = "Needs to be refactored")]
-    private static void CompareFieldValues(IEquivalencyValidationContext context, IEquivalencyValidator parent,
+    private static void CompareFieldValues(IEquivalencyValidationContext context, IValidateChildNodeEquivalency parent,
         DataRow subject, DataRow expectation, DataEquivalencyAssertionOptions<DataSet> dataSetConfig,
-        DataEquivalencyAssertionOptions<DataTable> dataTableConfig, DataEquivalencyAssertionOptions<DataRow> dataRowConfig)
+        DataEquivalencyAssertionOptions<DataTable> dataTableConfig, DataEquivalencyAssertionOptions<DataRow> dataRowConfig,
+        AssertionChain assertionChain)
     {
         IEnumerable<string> expectationColumnNames = expectation.Table.Columns.Cast<DataColumn>()
             .Select(col => col.ColumnName);
@@ -137,11 +140,11 @@ public class DataRowEquivalencyStep : EquivalencyStep<DataRow>
 
             if (!ignoreUnmatchedColumns)
             {
-                AssertionScope.Current
+                assertionChain
                     .ForCondition(subjectColumn is not null)
                     .FailWith("Expected {context:DataRow} to have column {0}{reason}, but found none", columnName);
 
-                AssertionScope.Current
+                assertionChain
                     .ForCondition(expectationColumn is not null)
                     .FailWith("Found unexpected column {0} in {context:DataRow}", columnName);
             }
@@ -160,7 +163,7 @@ public class DataRowEquivalencyStep : EquivalencyStep<DataRow>
         }
     }
 
-    private static void CompareFieldValue(IEquivalencyValidationContext context, IEquivalencyValidator parent, DataRow subject,
+    private static void CompareFieldValue(IEquivalencyValidationContext context, IValidateChildNodeEquivalency parent, DataRow subject,
         DataRow expectation, DataColumn subjectColumn, DataRowVersion subjectVersion, DataColumn expectationColumn,
         DataRowVersion expectationVersion)
     {
@@ -171,7 +174,7 @@ public class DataRowEquivalencyStep : EquivalencyStep<DataRow>
 
         if (nestedContext is not null)
         {
-            parent.RecursivelyAssertEquality(
+            parent.AssertEquivalencyOf(
                 new Comparands(subject[subjectColumn, subjectVersion], expectation[expectationColumn, expectationVersion],
                     typeof(object)),
                 nestedContext);
@@ -185,11 +188,11 @@ public class DataRowEquivalencyStep : EquivalencyStep<DataRow>
         public bool RowState { get; init; }
     }
 
-    private static readonly ConcurrentDictionary<(Type CompileTimeType, Type RuntimeType, IEquivalencyAssertionOptions Config),
+    private static readonly ConcurrentDictionary<(Type CompileTimeType, Type RuntimeType, IEquivalencyOptions Config),
         SelectedDataRowMembers> SelectedMembersCache = new();
 
     private static SelectedDataRowMembers GetMembersFromExpectation(Comparands comparands, INode currentNode,
-        IEquivalencyAssertionOptions config)
+        IEquivalencyOptions config)
     {
         var cacheKey = (comparands.CompileTimeType, comparands.RuntimeType, config);
 

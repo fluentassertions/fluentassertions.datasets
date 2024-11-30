@@ -12,11 +12,16 @@ namespace FluentAssertions.DataSets;
 
 public static class InitializeDataSetSupport
 {
+    private static readonly object SyncObject = new();
+
     // ReSharper disable once UnusedMember.Global
 #pragma warning disable CA1822
     public static void Initialize()
 #pragma warning restore CA1822
     {
-        AssertionOptions.EquivalencyPlan.AddDataSetSupport();
+        lock (SyncObject)
+        {
+            AssertionOptions.EquivalencyPlan.AddDataSetSupport();
+        }
     }
 }

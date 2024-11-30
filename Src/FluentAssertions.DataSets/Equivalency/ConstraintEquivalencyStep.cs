@@ -12,11 +12,13 @@ namespace FluentAssertions.DataSets.Equivalency;
 public class ConstraintEquivalencyStep : EquivalencyStep<Constraint>
 {
     protected override EquivalencyResult OnHandle(Comparands comparands, IEquivalencyValidationContext context,
-        IEquivalencyValidator nestedValidator)
+        IValidateChildNodeEquivalency nestedValidator)
     {
+        var assertionChain = AssertionChain.GetOrCreate().For(context);
+
         if (comparands.Subject is not Constraint)
         {
-            AssertionScope.Current
+            assertionChain
                 .FailWith("Expected {context:constraint} to be a value of type Constraint, but found {0}",
                     comparands.Subject.GetType());
         }
@@ -28,11 +30,11 @@ public class ConstraintEquivalencyStep : EquivalencyStep<Constraint>
             var selectedMembers = GetMembersFromExpectation(comparands, context.CurrentNode, context.Options)
                 .ToDictionary(member => member.Name);
 
-            CompareCommonProperties(context, nestedValidator, context.Options, subject, expectation, selectedMembers);
+            CompareCommonProperties(context, nestedValidator, context.Options, subject, expectation, selectedMembers, assertionChain);
 
             bool matchingType = subject.GetType() == expectation.GetType();
 
-            AssertionScope.Current
+            assertionChain
                 .ForCondition(matchingType)
                 .FailWith("Expected {context:constraint} to be of type {0}, but found {1}", expectation.GetType(),
                     subject.GetType());
@@ -43,32 +45,32 @@ public class ConstraintEquivalencyStep : EquivalencyStep<Constraint>
                     && expectation is UniqueConstraint expectationUniqueConstraint)
                 {
                     CompareConstraints(nestedValidator, context, subjectUniqueConstraint, expectationUniqueConstraint,
-                        selectedMembers);
+                        selectedMembers, assertionChain);
                 }
                 else if (subject is ForeignKeyConstraint subjectForeignKeyConstraint
                          && expectation is ForeignKeyConstraint expectationForeignKeyConstraint)
                 {
                     CompareConstraints(nestedValidator, context, subjectForeignKeyConstraint, expectationForeignKeyConstraint,
-                        selectedMembers);
+                        selectedMembers, assertionChain);
                 }
                 else
                 {
-                    AssertionScope.Current
+                    assertionChain
                         .FailWith("Don't know how to handle {constraint:a Constraint} of type {0}", subject.GetType());
                 }
             }
         }
 
-        return EquivalencyResult.AssertionCompleted;
+        return EquivalencyResult.EquivalencyProven;
     }
 
-    private static void CompareCommonProperties(IEquivalencyValidationContext context, IEquivalencyValidator parent,
-        IEquivalencyAssertionOptions options, Constraint subject, Constraint expectation,
-        Dictionary<string, IMember> selectedMembers)
+    private static void CompareCommonProperties(IEquivalencyValidationContext context, IValidateChildNodeEquivalency parent,
+        IEquivalencyOptions options, Constraint subject, Constraint expectation,
+        Dictionary<string, IMember> selectedMembers, AssertionChain assertionChain)
     {
         if (selectedMembers.ContainsKey("ConstraintName"))
         {
-            AssertionScope.Current
+            assertionChain
                 .ForCondition(subject.ConstraintName == expectation.ConstraintName)
                 .FailWith("Expected {context:constraint} to have a ConstraintName of {0}{reason}, but found {1}",
                     expectation.ConstraintName, subject.ConstraintName);
@@ -76,7 +78,7 @@ public class ConstraintEquivalencyStep : EquivalencyStep<Constraint>
 
         if (selectedMembers.ContainsKey("Table"))
         {
-            AssertionScope.Current
+            assertionChain
                 .ForCondition(subject.Table.TableName == expectation.Table.TableName)
                 .FailWith(
                     "Expected {context:constraint} to be associated with a Table with TableName of {0}{reason}, but found {1}",
@@ -85,7 +87,7 @@ public class ConstraintEquivalencyStep : EquivalencyStep<Constraint>
 
         if (selectedMembers.TryGetValue("ExtendedProperties", out IMember expectationMember))
         {
-            IMember matchingMember = FindMatchFor(expectationMember, context.CurrentNode, subject, options);
+            IMember matchingMember = FindMatchFor(expectationMember, context.CurrentNode, subject, options, assertionChain);
 
             if (matchingMember is not null)
             {
@@ -96,20 +98,20 @@ public class ConstraintEquivalencyStep : EquivalencyStep<Constraint>
                     CompileTimeType = expectationMember.Type
                 };
 
-                parent.RecursivelyAssertEquality(nestedComparands, context.AsNestedMember(expectationMember));
+                parent.AssertEquivalencyOf(nestedComparands, context.AsNestedMember(expectationMember));
             }
         }
     }
 
-    private static void CompareConstraints(IEquivalencyValidator parent, IEquivalencyValidationContext context,
-        UniqueConstraint subject, UniqueConstraint expectation, Dictionary<string, IMember> selectedMembers)
+    private static void CompareConstraints(IValidateChildNodeEquivalency parent, IEquivalencyValidationContext context,
+        UniqueConstraint subject, UniqueConstraint expectation, Dictionary<string, IMember> selectedMembers, AssertionChain assertionChain)
     {
-        AssertionScope.Current
+        assertionChain
             .ForCondition(subject.ConstraintName == expectation.ConstraintName)
             .FailWith("Expected {context:constraint} to be named {0}{reason}, but found {1}", expectation.ConstraintName,
                 subject.ConstraintName);
 
-        var nestedMember = new Property(
+        var nestedMember = MemberFactory.Create(
             typeof(Constraint).GetProperty(nameof(subject.ExtendedProperties)),
             context.CurrentNode);
 
@@ -120,11 +122,11 @@ public class ConstraintEquivalencyStep : EquivalencyStep<Constraint>
             CompileTimeType = nestedMember.Type
         };
 
-        parent.RecursivelyAssertEquality(nestedComparands, context.AsNestedMember(nestedMember));
+        parent.AssertEquivalencyOf(nestedComparands, context.AsNestedMember(nestedMember));
 
         if (selectedMembers.ContainsKey(nameof(expectation.IsPrimaryKey)))
         {
-            AssertionScope.Current
+            assertionChain
                 .ForCondition(subject.IsPrimaryKey == expectation.IsPrimaryKey)
                 .FailWith("Expected {context:constraint} to be a {0} constraint{reason}, but found a {1} constraint",
                     expectation.IsPrimaryKey ? "Primary Key" : "Foreign Key",
@@ -133,20 +135,20 @@ public class ConstraintEquivalencyStep : EquivalencyStep<Constraint>
 
         if (selectedMembers.ContainsKey(nameof(expectation.Columns)))
         {
-            CompareConstraintColumns(subject.Columns, expectation.Columns);
+            CompareConstraintColumns(subject.Columns, expectation.Columns, assertionChain);
         }
     }
 
     [SuppressMessage("Design", "MA0051:Method is too long", Justification = "Needs to be refactored")]
-    private static void CompareConstraints(IEquivalencyValidator parent, IEquivalencyValidationContext context,
-        ForeignKeyConstraint subject, ForeignKeyConstraint expectation, Dictionary<string, IMember> selectedMembers)
+    private static void CompareConstraints(IValidateChildNodeEquivalency parent, IEquivalencyValidationContext context,
+        ForeignKeyConstraint subject, ForeignKeyConstraint expectation, Dictionary<string, IMember> selectedMembers, AssertionChain assertionChain)
     {
-        AssertionScope.Current
+        assertionChain
             .ForCondition(subject.ConstraintName == expectation.ConstraintName)
             .FailWith("Expected {context:constraint} to be named {0}{reason}, but found {1}", expectation.ConstraintName,
                 subject.ConstraintName);
 
-        var nestedMember = new Property(
+        var nestedMember = MemberFactory.Create(
             typeof(Constraint).GetProperty(nameof(subject.ExtendedProperties)),
             context.CurrentNode);
 
@@ -157,11 +159,11 @@ public class ConstraintEquivalencyStep : EquivalencyStep<Constraint>
             CompileTimeType = nestedMember.Type
         };
 
-        parent.RecursivelyAssertEquality(nestedComparands, context.AsNestedMember(nestedMember));
+        parent.AssertEquivalencyOf(nestedComparands, context.AsNestedMember(nestedMember));
 
         if (selectedMembers.ContainsKey(nameof(expectation.RelatedTable)))
         {
-            AssertionScope.Current
+            assertionChain
                 .ForCondition(subject.RelatedTable.TableName == expectation.RelatedTable.TableName)
                 .FailWith("Expected {context:constraint} to have a related table named {0}{reason}, but found {1}",
                     expectation.RelatedTable.TableName, subject.RelatedTable.TableName);
@@ -169,7 +171,7 @@ public class ConstraintEquivalencyStep : EquivalencyStep<Constraint>
 
         if (selectedMembers.ContainsKey(nameof(expectation.AcceptRejectRule)))
         {
-            AssertionScope.Current
+            assertionChain
                 .ForCondition(subject.AcceptRejectRule == expectation.AcceptRejectRule)
                 .FailWith(
                     "Expected {context:constraint} to have AcceptRejectRule.{0}{reason}, but found AcceptRejectRule.{1}",
@@ -178,7 +180,7 @@ public class ConstraintEquivalencyStep : EquivalencyStep<Constraint>
 
         if (selectedMembers.ContainsKey(nameof(expectation.DeleteRule)))
         {
-            AssertionScope.Current
+            assertionChain
                 .ForCondition(subject.DeleteRule == expectation.DeleteRule)
                 .FailWith("Expected {context:constraint} to have DeleteRule Rule.{0}{reason}, but found Rule.{1}",
                     expectation.DeleteRule, subject.DeleteRule);
@@ -186,7 +188,7 @@ public class ConstraintEquivalencyStep : EquivalencyStep<Constraint>
 
         if (selectedMembers.ContainsKey(nameof(expectation.UpdateRule)))
         {
-            AssertionScope.Current
+            assertionChain
                 .ForCondition(subject.UpdateRule == expectation.UpdateRule)
                 .FailWith("Expected {context:constraint} to have UpdateRule Rule.{0}{reason}, but found Rule.{1}",
                     expectation.UpdateRule, subject.UpdateRule);
@@ -194,16 +196,16 @@ public class ConstraintEquivalencyStep : EquivalencyStep<Constraint>
 
         if (selectedMembers.ContainsKey(nameof(expectation.Columns)))
         {
-            CompareConstraintColumns(subject.Columns, expectation.Columns);
+            CompareConstraintColumns(subject.Columns, expectation.Columns, assertionChain);
         }
 
         if (selectedMembers.ContainsKey(nameof(expectation.RelatedColumns)))
         {
-            CompareConstraintColumns(subject.RelatedColumns, expectation.RelatedColumns);
+            CompareConstraintColumns(subject.RelatedColumns, expectation.RelatedColumns, assertionChain);
         }
     }
 
-    private static void CompareConstraintColumns(DataColumn[] subjectColumns, DataColumn[] expectationColumns)
+    private static void CompareConstraintColumns(DataColumn[] subjectColumns, DataColumn[] expectationColumns, AssertionChain assertionChain)
     {
         var subjectColumnNames = new HashSet<string>(subjectColumns.Select(col => col.ColumnName));
         var expectationColumnNames = new HashSet<string>(expectationColumns.Select(col => col.ColumnName));
@@ -251,17 +253,17 @@ public class ConstraintEquivalencyStep : EquivalencyStep<Constraint>
 
         bool successful = failureMessage.Length == 0;
 
-        AssertionScope.Current
+        assertionChain
             .ForCondition(successful)
             .FailWith(failureMessage.ToString());
     }
 
     private static IMember FindMatchFor(IMember selectedMemberInfo, INode currentNode, object subject,
-        IEquivalencyAssertionOptions config)
+        IEquivalencyOptions config, AssertionChain assertionChain)
     {
         IEnumerable<IMember> query =
             from rule in config.MatchingRules
-            let match = rule.Match(selectedMemberInfo, subject, currentNode, config)
+            let match = rule.Match(selectedMemberInfo, subject, currentNode, config, assertionChain)
             where match is not null
             select match;
 
@@ -269,7 +271,7 @@ public class ConstraintEquivalencyStep : EquivalencyStep<Constraint>
     }
 
     private static IEnumerable<IMember> GetMembersFromExpectation(Comparands comparands, INode currentNode,
-        IEquivalencyAssertionOptions options)
+        IEquivalencyOptions options)
     {
         IEnumerable<IMember> members = Enumerable.Empty<IMember>();
 

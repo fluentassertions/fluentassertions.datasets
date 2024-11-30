@@ -2,6 +2,7 @@
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using FluentAssertions.DataSets.Common;
 using FluentAssertions.Equivalency;
 using FluentAssertions.Execution;
 
@@ -11,39 +12,40 @@ public class DataColumnEquivalencyStep : EquivalencyStep<DataColumn>
 {
     [SuppressMessage("Style", "IDE0019:Use pattern matching", Justification = "The code is easier to read without it.")]
     protected override EquivalencyResult OnHandle(Comparands comparands, IEquivalencyValidationContext context,
-        IEquivalencyValidator nestedValidator)
+        IValidateChildNodeEquivalency nestedValidator)
     {
+        var assertionChain = AssertionChain.GetOrCreate().For(context);
         var subject = comparands.Subject as DataColumn;
 
         if (comparands.Expectation is not DataColumn expectation)
         {
             if (subject is not null)
             {
-                AssertionScope.Current.FailWith("Expected {context:DataColumn} value to be null, but found {0}", subject);
+                assertionChain.FailWith("Expected {context:DataColumn} value to be null, but found {0}", subject);
             }
         }
         else if (subject is null)
         {
             if (comparands.Subject is null)
             {
-                AssertionScope.Current.FailWith("Expected {context:DataColumn} to be non-null, but found null");
+                assertionChain.FailWith("Expected {context:DataColumn} to be non-null, but found null");
             }
             else
             {
-                AssertionScope.Current.FailWith("Expected {context:DataColumn} to be of type {0}, but found {1} instead",
+                assertionChain.FailWith("Expected {context:DataColumn} to be of type {0}, but found {1} instead",
                     expectation.GetType(), comparands.Subject.GetType());
             }
         }
         else
         {
-            CompareSubjectAndExpectationOfTypeDataColumn(comparands, context, nestedValidator, subject);
+            CompareSubjectAndExpectationOfTypeDataColumn(comparands, context, nestedValidator, subject, assertionChain);
         }
 
-        return EquivalencyResult.AssertionCompleted;
+        return EquivalencyResult.EquivalencyProven;
     }
 
     private static void CompareSubjectAndExpectationOfTypeDataColumn(Comparands comparands,
-        IEquivalencyValidationContext context, IEquivalencyValidator parent, DataColumn subject)
+        IEquivalencyValidationContext context, IValidateChildNodeEquivalency parent, DataColumn subject, AssertionChain assertionChain)
     {
         bool compareColumn = true;
 
@@ -64,16 +66,16 @@ public class DataColumnEquivalencyStep : EquivalencyStep<DataColumn>
             {
                 if (expectationMember.Name != nameof(subject.Table))
                 {
-                    CompareMember(expectationMember, comparands, parent, context);
+                    CompareMember(expectationMember, comparands, parent, context, assertionChain);
                 }
             }
         }
     }
 
-    private static void CompareMember(IMember expectationMember, Comparands comparands, IEquivalencyValidator parent,
-        IEquivalencyValidationContext context)
+    private static void CompareMember(IMember expectationMember, Comparands comparands, IValidateChildNodeEquivalency parent,
+        IEquivalencyValidationContext context, AssertionChain assertionChain)
     {
-        IMember matchingMember = FindMatchFor(expectationMember, comparands.Subject, context);
+        IMember matchingMember = FindMatchFor(expectationMember, comparands.Subject, context, assertionChain);
 
         if (matchingMember is not null)
         {
@@ -86,16 +88,17 @@ public class DataColumnEquivalencyStep : EquivalencyStep<DataColumn>
 
             if (context.AsNestedMember(expectationMember) is not null)
             {
-                parent.RecursivelyAssertEquality(nestedComparands, context.AsNestedMember(expectationMember));
+                parent.AssertEquivalencyOf(nestedComparands, context.AsNestedMember(expectationMember));
             }
         }
     }
 
-    private static IMember FindMatchFor(IMember selectedMemberInfo, object subject, IEquivalencyValidationContext context)
+    private static IMember FindMatchFor(IMember selectedMemberInfo, object subject, IEquivalencyValidationContext context,
+        AssertionChain assertionChain)
     {
         IEnumerable<IMember> query =
             from rule in context.Options.MatchingRules
-            let match = rule.Match(selectedMemberInfo, subject, context.CurrentNode, context.Options)
+            let match = rule.Match(selectedMemberInfo, subject, context.CurrentNode, context.Options, assertionChain)
             where match is not null
             select match;
 
@@ -126,7 +129,7 @@ public class DataColumnEquivalencyStep : EquivalencyStep<DataColumn>
     };
 
     private static IEnumerable<IMember> GetMembersFromExpectation(INode currentNode, Comparands comparands,
-        IEquivalencyAssertionOptions config)
+        IEquivalencyOptions config)
     {
         IEnumerable<IMember> members = Enumerable.Empty<IMember>();
 

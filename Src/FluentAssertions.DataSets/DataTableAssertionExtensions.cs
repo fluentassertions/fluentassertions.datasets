@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using System.Diagnostics;
 using FluentAssertions.DataSets;
+using FluentAssertions.Execution;
 using JetBrains.Annotations;
 
 // ReSharper disable once CheckNamespace
@@ -20,6 +21,6 @@ public static class DataTableAssertionExtensions
     public static DataTableAssertions<TDataTable> Should<TDataTable>(this TDataTable actualValue)
         where TDataTable : DataTable
     {
-        return new DataTableAssertions<TDataTable>(actualValue);
+        return new DataTableAssertions<TDataTable>(actualValue, AssertionChain.GetOrCreate());
     }
 }

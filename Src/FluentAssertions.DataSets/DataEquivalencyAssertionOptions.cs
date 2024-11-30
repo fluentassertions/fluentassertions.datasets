@@ -7,7 +7,7 @@ using FluentAssertions.Equivalency;
 
 namespace FluentAssertions.DataSets;
 
-internal class DataEquivalencyAssertionOptions<T> : EquivalencyAssertionOptions<T>, IDataEquivalencyAssertionOptions<T>
+internal class DataEquivalencyAssertionOptions<T> : EquivalencyOptions<T>, IDataEquivalencyAssertionOptions<T>
 {
     private readonly HashSet<string> excludeTableNames = new();
     private readonly HashSet<string> excludeColumnNames = new();
@@ -25,7 +25,7 @@ internal class DataEquivalencyAssertionOptions<T> : EquivalencyAssertionOptions<
 
     public ISet<string> ExcludeColumnNames => excludeColumnNames;
 
-    public DataEquivalencyAssertionOptions(EquivalencyAssertionOptions<T> defaults)
+    public DataEquivalencyAssertionOptions(EquivalencyOptions<T> defaults)
         : base(defaults)
     {
     }

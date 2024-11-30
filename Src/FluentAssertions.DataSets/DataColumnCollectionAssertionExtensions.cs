@@ -4,7 +4,6 @@ using System.Linq;
 using FluentAssertions.Collections;
 using FluentAssertions.DataSets;
 using FluentAssertions.DataSets.Common;
-using FluentAssertions.Execution;
 
 // ReSharper disable once CheckNamespace
 namespace FluentAssertions;
@@ -35,7 +34,7 @@ public static class DataColumnCollectionAssertionExtensions
         {
             var actualSubject = wrapper.UnderlyingCollection;
 
-            Execute.Assertion
+            assertion.CurrentAssertionChain
                 .UsingLineBreaks
                 .ForCondition(ReferenceEquals(actualSubject, expected))
                 .BecauseOf(because, becauseArgs)
@@ -45,7 +44,7 @@ public static class DataColumnCollectionAssertionExtensions
         }
         else
         {
-            Execute.Assertion
+            assertion.CurrentAssertionChain
                 .BecauseOf(because, becauseArgs)
                 .FailWith(
                     "Invalid expectation: Expected {context:column collection} to refer to an instance of " +
@@ -80,7 +79,7 @@ public static class DataColumnCollectionAssertionExtensions
         {
             var actualSubject = wrapper.UnderlyingCollection;
 
-            Execute.Assertion
+            assertion.CurrentAssertionChain
                 .UsingLineBreaks
                 .ForCondition(!ReferenceEquals(actualSubject, unexpected))
                 .BecauseOf(because, becauseArgs)
@@ -88,7 +87,7 @@ public static class DataColumnCollectionAssertionExtensions
         }
         else
         {
-            Execute.Assertion
+            assertion.CurrentAssertionChain
                 .BecauseOf(because, becauseArgs)
                 .FailWith(
                     "Invalid expectation: Expected {context:column collection} to refer to a different instance of " +
@@ -119,18 +118,16 @@ public static class DataColumnCollectionAssertionExtensions
         Guard.ThrowIfArgumentIsNull(
             otherCollection, nameof(otherCollection), "Cannot verify count against a <null> collection.");
 
-        Execute.Assertion
+        assertion.CurrentAssertionChain
             .BecauseOf(because, becauseArgs)
-            .WithExpectation("Expected {context:collection} to have ")
-            .Given(() => assertion.Subject)
-            .ForCondition(subject => subject is not null)
-            .FailWith("the same count as {0}{reason}, but found <null>.", otherCollection)
-            .Then
-            .Given(subject => (actual: subject.Count(), expected: otherCollection.Count))
-            .ForCondition(count => count.actual == count.expected)
-            .FailWith("{0} column(s){reason}, but found {1}.", count => count.expected, count => count.actual)
-            .Then
-            .ClearExpectation();
+            .WithExpectation("Expected {context:collection} to have ", chain => chain
+                .Given(() => assertion.Subject)
+                .ForCondition(subject => subject is not null)
+                .FailWith("the same count as {0}{reason}, but found <null>.", otherCollection)
+                .Then
+                .Given(subject => (actual: subject.Count(), expected: otherCollection.Count))
+                .ForCondition(count => count.actual == count.expected)
+                .FailWith("{0} column(s){reason}, but found {1}.", count => count.expected, count => count.actual));
 
         return new AndConstraint<GenericCollectionAssertions<DataColumn>>(assertion);
     }
@@ -157,18 +154,16 @@ public static class DataColumnCollectionAssertionExtensions
         Guard.ThrowIfArgumentIsNull(
             otherCollection, nameof(otherCollection), "Cannot verify count against a <null> collection.");
 
-        Execute.Assertion
+        assertion.CurrentAssertionChain
             .BecauseOf(because, becauseArgs)
-            .WithExpectation("Expected {context:collection} to not have ")
-            .Given(() => assertion.Subject)
-            .ForCondition(subject => subject is not null)
-            .FailWith("the same count as {0}{reason}, but found <null>.", otherCollection)
-            .Then
-            .Given(subject => (actual: subject.Count(), expected: otherCollection.Count))
-            .ForCondition(count => count.actual != count.expected)
-            .FailWith("{0} column(s){reason}, but found {1}.", count => count.expected, count => count.actual)
-            .Then
-            .ClearExpectation();
+            .WithExpectation("Expected {context:collection} to not have ", chain => chain
+                .Given(() => assertion.Subject)
+                .ForCondition(subject => subject is not null)
+                .FailWith("the same count as {0}{reason}, but found <null>.", otherCollection)
+                .Then
+                .Given(subject => (actual: subject.Count(), expected: otherCollection.Count))
+                .ForCondition(count => count.actual != count.expected)
+                .FailWith("{0} column(s){reason}, but found {1}.", count => count.expected, count => count.actual));
 
         return new AndConstraint<GenericCollectionAssertions<DataColumn>>(assertion);
     }

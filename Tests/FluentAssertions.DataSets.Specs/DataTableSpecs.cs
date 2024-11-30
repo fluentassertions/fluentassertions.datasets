@@ -121,7 +121,7 @@ public class DataTableSpecs : DataSpecs
 
         // Assert
         action.Should().Throw<XunitException>().WithMessage(
-            "Found unexpected row in *with key *Expected to find a row with key *in *, but no such row was found*");
+            "Found unexpected row in*with key*");
     }
 
     [Fact]
@@ -147,7 +147,7 @@ public class DataTableSpecs : DataSpecs
 
         // Assert
         action.Should().Throw<XunitException>().WithMessage(
-            "Found unexpected row in *with key * rows were expected in *and not found*");
+            "Found unexpected row in*with key*");
     }
 
     [Fact]

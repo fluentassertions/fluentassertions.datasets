@@ -4,7 +4,6 @@ using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using FluentAssertions.DataSets.Common;
-using FluentAssertions.Equivalency;
 using FluentAssertions.Execution;
 using FluentAssertions.Primitives;
 
@@ -18,8 +17,8 @@ namespace FluentAssertions.DataSets;
 public class DataSetAssertions<TDataSet> : ReferenceTypeAssertions<DataSet, DataSetAssertions<TDataSet>>
     where TDataSet : DataSet
 {
-    public DataSetAssertions(TDataSet dataSet)
-        : base(dataSet)
+    public DataSetAssertions(TDataSet dataSet, AssertionChain assertionChain)
+        : base(dataSet, assertionChain)
     {
     }
 
@@ -37,16 +36,16 @@ public class DataSetAssertions<TDataSet> : ReferenceTypeAssertions<DataSet, Data
     public AndConstraint<DataSetAssertions<TDataSet>> HaveTableCount(int expected, string because = "",
         params object[] becauseArgs)
     {
-        bool success = Execute.Assertion
+        CurrentAssertionChain
             .ForCondition(Subject is not null)
             .BecauseOf(because, becauseArgs)
             .FailWith("Expected {context:DataSet} to contain exactly {0} table(s){reason}, but found <null>.", expected);
 
-        if (success)
+        if (CurrentAssertionChain.Succeeded)
         {
             int actualCount = Subject.Tables.Count;
 
-            Execute.Assertion
+            CurrentAssertionChain
                 .ForCondition(actualCount == expected)
                 .BecauseOf(because, becauseArgs)
                 .FailWith("Expected {context:DataSet} to contain exactly {0} table(s){reason}, but found {1}.", expected,
@@ -74,14 +73,14 @@ public class DataSetAssertions<TDataSet> : ReferenceTypeAssertions<DataSet, Data
 
         if (Subject is null)
         {
-            Execute.Assertion
+            CurrentAssertionChain
                 .BecauseOf(because, becauseArgs)
                 .FailWith("Expected {context:DataSet} to contain a table named {0}{reason}, but found <null>.",
                     expectedTableName);
         }
         else if (!Subject.Tables.Contains(expectedTableName))
         {
-            Execute.Assertion
+            CurrentAssertionChain
                 .BecauseOf(because, becauseArgs)
                 .FailWith("Expected {context:DataSet} to contain a table named {0}{reason}, but it does not.", expectedTableName);
         }
@@ -116,17 +115,17 @@ public class DataSetAssertions<TDataSet> : ReferenceTypeAssertions<DataSet, Data
     public AndConstraint<DataSetAssertions<TDataSet>> HaveTables(IEnumerable<string> expectedTableNames, string because = "",
         params object[] becauseArgs)
     {
-        bool success = Execute.Assertion
+        CurrentAssertionChain
             .ForCondition(Subject is not null)
             .BecauseOf(because, becauseArgs)
             .FailWith("Expected {context:DataSet} to contain {0} table(s) with specific names{reason}, but found <null>.",
                 () => expectedTableNames.Count());
 
-        if (success)
+        if (CurrentAssertionChain.Succeeded)
         {
             foreach (var expectedTableName in expectedTableNames)
             {
-                Execute.Assertion
+                CurrentAssertionChain
                     .ForCondition(Subject.Tables.Contains(expectedTableName))
                     .BecauseOf(because, becauseArgs)
                     .FailWith("Expected {context:DataSet} to contain a table named {0}{reason}, but it does not.", expectedTableName);
@@ -246,23 +245,9 @@ public class DataSetAssertions<TDataSet> : ReferenceTypeAssertions<DataSet, Data
         Guard.ThrowIfArgumentIsNull(config);
 
         var defaults = new DataEquivalencyAssertionOptions<DataSet>(AssertionOptions.CloneDefaults<DataSet>());
-        IDataEquivalencyAssertionOptions<DataSet> options = config(defaults);
+        config(defaults);
 
-        var comparands = new Comparands
-        {
-            Subject = Subject,
-            Expectation = expectation,
-            CompileTimeType = typeof(TDataSet)
-        };
-
-        var context = new EquivalencyValidationContext(Node.From<DataSet>(() => AssertionScope.Current.CallerIdentity), options)
-        {
-            Reason = new Reason(because, becauseArgs),
-            TraceWriter = options.TraceWriter,
-        };
-
-        var equivalencyValidator = new EquivalencyValidator();
-        equivalencyValidator.AssertEquality(comparands, context);
+        ((object)Subject).Should().BeEquivalentTo(expectation, _ => defaults, because, becauseArgs);
 
         return new AndConstraint<DataSetAssertions<TDataSet>>(this);
     }

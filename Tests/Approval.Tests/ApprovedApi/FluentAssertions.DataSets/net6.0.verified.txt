@@ -54,7 +54,7 @@ namespace FluentAssertions.DataSets
 {
     public class DataColumnAssertions : FluentAssertions.Primitives.ReferenceTypeAssertions<System.Data.DataColumn, FluentAssertions.DataSets.DataColumnAssertions>
     {
-        public DataColumnAssertions(System.Data.DataColumn dataColumn) { }
+        public DataColumnAssertions(System.Data.DataColumn dataColumn, FluentAssertions.Execution.AssertionChain assertionChain) { }
         protected override string Identifier { get; }
         public FluentAssertions.AndConstraint<FluentAssertions.DataSets.DataColumnAssertions> BeEquivalentTo(System.Data.DataColumn expectation, string because = "", params object[] becauseArgs) { }
         public FluentAssertions.AndConstraint<FluentAssertions.DataSets.DataColumnAssertions> BeEquivalentTo(System.Data.DataColumn expectation, System.Func<FluentAssertions.DataSets.IDataEquivalencyAssertionOptions<System.Data.DataColumn>, FluentAssertions.DataSets.IDataEquivalencyAssertionOptions<System.Data.DataColumn>> config, string because = "", params object[] becauseArgs) { }
@@ -62,7 +62,7 @@ namespace FluentAssertions.DataSets
     public class DataRowAssertions<TDataRow> : FluentAssertions.Primitives.ReferenceTypeAssertions<TDataRow, FluentAssertions.DataSets.DataRowAssertions<TDataRow>>
         where TDataRow : System.Data.DataRow
     {
-        public DataRowAssertions(TDataRow dataRow) { }
+        public DataRowAssertions(TDataRow dataRow, FluentAssertions.Execution.AssertionChain assertionChain) { }
         protected override string Identifier { get; }
         public FluentAssertions.AndConstraint<FluentAssertions.DataSets.DataRowAssertions<TDataRow>> BeEquivalentTo(System.Data.DataRow expectation, string because = "", params object[] becauseArgs) { }
         public FluentAssertions.AndConstraint<FluentAssertions.DataSets.DataRowAssertions<TDataRow>> BeEquivalentTo(System.Data.DataRow expectation, System.Func<FluentAssertions.DataSets.IDataEquivalencyAssertionOptions<System.Data.DataRow>, FluentAssertions.DataSets.IDataEquivalencyAssertionOptions<System.Data.DataRow>> config, string because = "", params object[] becauseArgs) { }
@@ -73,7 +73,7 @@ namespace FluentAssertions.DataSets
     public class DataSetAssertions<TDataSet> : FluentAssertions.Primitives.ReferenceTypeAssertions<System.Data.DataSet, FluentAssertions.DataSets.DataSetAssertions<TDataSet>>
         where TDataSet : System.Data.DataSet
     {
-        public DataSetAssertions(TDataSet dataSet) { }
+        public DataSetAssertions(TDataSet dataSet, FluentAssertions.Execution.AssertionChain assertionChain) { }
         protected override string Identifier { get; }
         public FluentAssertions.AndConstraint<FluentAssertions.DataSets.DataSetAssertions<TDataSet>> BeEquivalentTo(System.Data.DataSet expectation, string because = "", params object[] becauseArgs) { }
         public FluentAssertions.AndConstraint<FluentAssertions.DataSets.DataSetAssertions<TDataSet>> BeEquivalentTo(System.Data.DataSet expectation, System.Func<FluentAssertions.DataSets.IDataEquivalencyAssertionOptions<System.Data.DataSet>, FluentAssertions.DataSets.IDataEquivalencyAssertionOptions<System.Data.DataSet>> config, string because = "", params object[] becauseArgs) { }
@@ -85,7 +85,7 @@ namespace FluentAssertions.DataSets
     public class DataTableAssertions<TDataTable> : FluentAssertions.Primitives.ReferenceTypeAssertions<System.Data.DataTable, FluentAssertions.DataSets.DataTableAssertions<TDataTable>>
         where TDataTable : System.Data.DataTable
     {
-        public DataTableAssertions(TDataTable dataTable) { }
+        public DataTableAssertions(TDataTable dataTable, FluentAssertions.Execution.AssertionChain assertionChain) { }
         protected override string Identifier { get; }
         public FluentAssertions.AndConstraint<FluentAssertions.DataSets.DataTableAssertions<TDataTable>> BeEquivalentTo(System.Data.DataTable expectation, string because = "", params object[] becauseArgs) { }
         public FluentAssertions.AndConstraint<FluentAssertions.DataSets.DataTableAssertions<TDataTable>> BeEquivalentTo(System.Data.DataTable expectation, System.Func<FluentAssertions.DataSets.IDataEquivalencyAssertionOptions<System.Data.DataTable>, FluentAssertions.DataSets.IDataEquivalencyAssertionOptions<System.Data.DataTable>> config, string because = "", params object[] becauseArgs) { }
@@ -98,7 +98,7 @@ namespace FluentAssertions.DataSets
     {
         public static void AddDataSetSupport(this FluentAssertions.EquivalencyPlan plan) { }
     }
-    public interface IDataEquivalencyAssertionOptions<T> : FluentAssertions.Equivalency.IEquivalencyAssertionOptions
+    public interface IDataEquivalencyAssertionOptions<T> : FluentAssertions.Equivalency.IEquivalencyOptions
     {
         FluentAssertions.DataSets.IDataEquivalencyAssertionOptions<T> AllowingMismatchedTypes();
         FluentAssertions.DataSets.IDataEquivalencyAssertionOptions<T> Excluding(System.Linq.Expressions.Expression<System.Func<FluentAssertions.Equivalency.IMemberInfo, bool>> predicate);
@@ -141,41 +141,41 @@ namespace FluentAssertions.DataSets.Equivalency
     public class ConstraintCollectionEquivalencyStep : FluentAssertions.Equivalency.EquivalencyStep<System.Data.ConstraintCollection>
     {
         public ConstraintCollectionEquivalencyStep() { }
-        protected override FluentAssertions.Equivalency.EquivalencyResult OnHandle(FluentAssertions.Equivalency.Comparands comparands, FluentAssertions.Equivalency.IEquivalencyValidationContext context, FluentAssertions.Equivalency.IEquivalencyValidator nestedValidator) { }
+        protected override FluentAssertions.Equivalency.EquivalencyResult OnHandle(FluentAssertions.Equivalency.Comparands comparands, FluentAssertions.Equivalency.IEquivalencyValidationContext context, FluentAssertions.Equivalency.IValidateChildNodeEquivalency nestedValidator) { }
     }
     public class ConstraintEquivalencyStep : FluentAssertions.Equivalency.EquivalencyStep<System.Data.Constraint>
     {
         public ConstraintEquivalencyStep() { }
-        protected override FluentAssertions.Equivalency.EquivalencyResult OnHandle(FluentAssertions.Equivalency.Comparands comparands, FluentAssertions.Equivalency.IEquivalencyValidationContext context, FluentAssertions.Equivalency.IEquivalencyValidator nestedValidator) { }
+        protected override FluentAssertions.Equivalency.EquivalencyResult OnHandle(FluentAssertions.Equivalency.Comparands comparands, FluentAssertions.Equivalency.IEquivalencyValidationContext context, FluentAssertions.Equivalency.IValidateChildNodeEquivalency nestedValidator) { }
     }
     public class DataColumnEquivalencyStep : FluentAssertions.Equivalency.EquivalencyStep<System.Data.DataColumn>
     {
         public DataColumnEquivalencyStep() { }
-        protected override FluentAssertions.Equivalency.EquivalencyResult OnHandle(FluentAssertions.Equivalency.Comparands comparands, FluentAssertions.Equivalency.IEquivalencyValidationContext context, FluentAssertions.Equivalency.IEquivalencyValidator nestedValidator) { }
+        protected override FluentAssertions.Equivalency.EquivalencyResult OnHandle(FluentAssertions.Equivalency.Comparands comparands, FluentAssertions.Equivalency.IEquivalencyValidationContext context, FluentAssertions.Equivalency.IValidateChildNodeEquivalency nestedValidator) { }
     }
     public class DataRelationEquivalencyStep : FluentAssertions.Equivalency.EquivalencyStep<System.Data.DataRelation>
     {
         public DataRelationEquivalencyStep() { }
-        protected override FluentAssertions.Equivalency.EquivalencyResult OnHandle(FluentAssertions.Equivalency.Comparands comparands, FluentAssertions.Equivalency.IEquivalencyValidationContext context, FluentAssertions.Equivalency.IEquivalencyValidator nestedValidator) { }
+        protected override FluentAssertions.Equivalency.EquivalencyResult OnHandle(FluentAssertions.Equivalency.Comparands comparands, FluentAssertions.Equivalency.IEquivalencyValidationContext context, FluentAssertions.Equivalency.IValidateChildNodeEquivalency nestedValidator) { }
     }
     public class DataRowCollectionEquivalencyStep : FluentAssertions.Equivalency.EquivalencyStep<System.Data.DataRowCollection>
     {
         public DataRowCollectionEquivalencyStep() { }
-        protected override FluentAssertions.Equivalency.EquivalencyResult OnHandle(FluentAssertions.Equivalency.Comparands comparands, FluentAssertions.Equivalency.IEquivalencyValidationContext context, FluentAssertions.Equivalency.IEquivalencyValidator nestedValidator) { }
+        protected override FluentAssertions.Equivalency.EquivalencyResult OnHandle(FluentAssertions.Equivalency.Comparands comparands, FluentAssertions.Equivalency.IEquivalencyValidationContext context, FluentAssertions.Equivalency.IValidateChildNodeEquivalency nestedValidator) { }
     }
     public class DataRowEquivalencyStep : FluentAssertions.Equivalency.EquivalencyStep<System.Data.DataRow>
     {
         public DataRowEquivalencyStep() { }
-        protected override FluentAssertions.Equivalency.EquivalencyResult OnHandle(FluentAssertions.Equivalency.Comparands comparands, FluentAssertions.Equivalency.IEquivalencyValidationContext context, FluentAssertions.Equivalency.IEquivalencyValidator nestedValidator) { }
+        protected override FluentAssertions.Equivalency.EquivalencyResult OnHandle(FluentAssertions.Equivalency.Comparands comparands, FluentAssertions.Equivalency.IEquivalencyValidationContext context, FluentAssertions.Equivalency.IValidateChildNodeEquivalency nestedValidator) { }
     }
     public class DataSetEquivalencyStep : FluentAssertions.Equivalency.EquivalencyStep<System.Data.DataSet>
     {
         public DataSetEquivalencyStep() { }
-        protected override FluentAssertions.Equivalency.EquivalencyResult OnHandle(FluentAssertions.Equivalency.Comparands comparands, FluentAssertions.Equivalency.IEquivalencyValidationContext context, FluentAssertions.Equivalency.IEquivalencyValidator nestedValidator) { }
+        protected override FluentAssertions.Equivalency.EquivalencyResult OnHandle(FluentAssertions.Equivalency.Comparands comparands, FluentAssertions.Equivalency.IEquivalencyValidationContext context, FluentAssertions.Equivalency.IValidateChildNodeEquivalency nestedValidator) { }
     }
     public class DataTableEquivalencyStep : FluentAssertions.Equivalency.EquivalencyStep<System.Data.DataTable>
     {
         public DataTableEquivalencyStep() { }
-        protected override FluentAssertions.Equivalency.EquivalencyResult OnHandle(FluentAssertions.Equivalency.Comparands comparands, FluentAssertions.Equivalency.IEquivalencyValidationContext context, FluentAssertions.Equivalency.IEquivalencyValidator nestedValidator) { }
+        protected override FluentAssertions.Equivalency.EquivalencyResult OnHandle(FluentAssertions.Equivalency.Comparands comparands, FluentAssertions.Equivalency.IEquivalencyValidationContext context, FluentAssertions.Equivalency.IValidateChildNodeEquivalency nestedValidator) { }
     }
 }

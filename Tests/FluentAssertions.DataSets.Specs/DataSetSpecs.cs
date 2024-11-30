@@ -617,7 +617,7 @@ public class DataSetSpecs : DataSpecs
         // Assert
         action.Should().Throw<XunitException>()
             .WithMessage(
-                "Expected dataSet1.Relations[0].ExtendedProperties* to reference column *ForeignRowID* in table *Different*, but found a reference to *ForeignRowID* in table *TypedDataTable2* instead*");
+                "Expected dataSet1.Relations[0]*to reference column*ForeignRowID*in table*Different*, but found a reference to*ForeignRowID*in table*TypedDataTable2*instead*");
     }
 
     [Fact]
