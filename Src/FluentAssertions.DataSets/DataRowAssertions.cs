@@ -18,8 +18,8 @@ namespace FluentAssertions.DataSets;
 public class DataRowAssertions<TDataRow> : ReferenceTypeAssertions<TDataRow, DataRowAssertions<TDataRow>>
     where TDataRow : DataRow
 {
-    public DataRowAssertions(TDataRow dataRow)
-        : base(dataRow)
+    public DataRowAssertions(TDataRow dataRow, AssertionChain assertionChain)
+        : base(dataRow, assertionChain)
     {
     }
 
@@ -41,14 +41,14 @@ public class DataRowAssertions<TDataRow> : ReferenceTypeAssertions<TDataRow, Dat
 
         if (Subject is null)
         {
-            Execute.Assertion
+            CurrentAssertionChain
                 .BecauseOf(because, becauseArgs)
                 .FailWith("Expected {context:DataRow} to contain a column named {0}{reason}, but found <null>.",
                     expectedColumnName);
         }
         else if (!Subject.Table.Columns.Contains(expectedColumnName))
         {
-            Execute.Assertion
+            CurrentAssertionChain
                 .BecauseOf(because, becauseArgs)
                 .FailWith("Expected {context:DataRow} to contain a column named {0}{reason}, but it does not.",
                     expectedColumnName);
@@ -84,18 +84,18 @@ public class DataRowAssertions<TDataRow> : ReferenceTypeAssertions<TDataRow, Dat
     public AndConstraint<DataRowAssertions<TDataRow>> HaveColumns(IEnumerable<string> expectedColumnNames, string because = "",
         params object[] becauseArgs)
     {
-        bool success = Execute.Assertion
+        CurrentAssertionChain
             .ForCondition(Subject is not null)
             .BecauseOf(because, becauseArgs)
             .FailWith(
                 "Expected {context:DataRow} to be in a table containing {0} column(s) with specific names{reason}, but found <null>.",
                 () => expectedColumnNames.Count());
 
-        if (success)
+        if (CurrentAssertionChain.Succeeded)
         {
             foreach (var expectedColumnName in expectedColumnNames)
             {
-                Execute.Assertion
+                CurrentAssertionChain
                     .ForCondition(Subject.Table.Columns.Contains(expectedColumnName))
                     .BecauseOf(because, becauseArgs)
                     .FailWith("Expected table containing {context:DataRow} to contain a column named {0}{reason}, but it does not.",
@@ -192,22 +192,9 @@ public class DataRowAssertions<TDataRow> : ReferenceTypeAssertions<TDataRow, Dat
         Guard.ThrowIfArgumentIsNull(config);
 
         var defaults = new DataEquivalencyAssertionOptions<DataRow>(AssertionOptions.CloneDefaults<DataRow>());
-        IDataEquivalencyAssertionOptions<DataRow> options = config(defaults);
+        config(defaults);
 
-        var context = new EquivalencyValidationContext(Node.From<DataRow>(() => AssertionScope.Current.CallerIdentity), options)
-        {
-            Reason = new Reason(because, becauseArgs),
-            TraceWriter = options.TraceWriter
-        };
-
-        var comparands = new Comparands
-        {
-            Subject = Subject,
-            Expectation = expectation,
-            CompileTimeType = typeof(TDataRow),
-        };
-
-        new EquivalencyValidator().AssertEquality(comparands, context);
+        ((object)Subject).Should().BeEquivalentTo(expectation, _ => defaults, because, becauseArgs);
 
         return new AndConstraint<DataRowAssertions<TDataRow>>(this);
     }

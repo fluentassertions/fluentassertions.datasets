@@ -2,6 +2,7 @@
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using FluentAssertions.DataSets.Common;
 using FluentAssertions.Equivalency;
 using FluentAssertions.Execution;
 
@@ -10,26 +11,27 @@ namespace FluentAssertions.DataSets.Equivalency;
 public class DataSetEquivalencyStep : EquivalencyStep<DataSet>
 {
     protected override EquivalencyResult OnHandle(Comparands comparands, IEquivalencyValidationContext context,
-        IEquivalencyValidator nestedValidator)
+        IValidateChildNodeEquivalency nestedValidator)
     {
+        var assertionChain = AssertionChain.GetOrCreate().For(context);
         var subject = comparands.Subject as DataSet;
 
         if (comparands.Expectation is not DataSet expectation)
         {
             if (subject is not null)
             {
-                AssertionScope.Current.FailWith("Expected {context:DataSet} value to be null, but found {0}", subject);
+                assertionChain.FailWith("Expected {context:DataSet} value to be null, but found {0}", subject);
             }
         }
         else if (subject is null)
         {
             if (comparands.Subject is null)
             {
-                AssertionScope.Current.FailWith("Expected {context:DataSet} to be non-null, but found null");
+                assertionChain.FailWith("Expected {context:DataSet} to be non-null, but found null");
             }
             else
             {
-                AssertionScope.Current.FailWith("Expected {context:DataSet} to be of type {0}, but found {1} instead",
+                assertionChain.FailWith("Expected {context:DataSet} to be of type {0}, but found {1} instead",
                     expectation.GetType(), comparands.Subject.GetType());
             }
         }
@@ -39,7 +41,7 @@ public class DataSetEquivalencyStep : EquivalencyStep<DataSet>
 
             if (dataConfig?.AllowMismatchedTypes != true)
             {
-                AssertionScope.Current
+                assertionChain
                     .ForCondition(subject.GetType() == expectation.GetType())
                     .FailWith("Expected {context:DataSet} to be of type {0}{reason}, but found {1}", expectation.GetType(),
                         subject.GetType());
@@ -48,22 +50,22 @@ public class DataSetEquivalencyStep : EquivalencyStep<DataSet>
             var selectedMembers = GetMembersFromExpectation(comparands, context.CurrentNode, context.Options)
                 .ToDictionary(member => member.Name);
 
-            CompareScalarProperties(subject, expectation, selectedMembers);
+            CompareScalarProperties(subject, expectation, selectedMembers, assertionChain);
 
-            CompareCollections(context, nestedValidator, context.Options, subject, expectation, dataConfig, selectedMembers);
+            CompareCollections(context, nestedValidator, context.Options, subject, expectation, dataConfig, selectedMembers, assertionChain);
         }
 
-        return EquivalencyResult.AssertionCompleted;
+        return EquivalencyResult.EquivalencyProven;
     }
 
     [SuppressMessage("Design", "MA0051:Method is too long")]
-    private static void CompareScalarProperties(DataSet subject, DataSet expectation, Dictionary<string, IMember> selectedMembers)
+    private static void CompareScalarProperties(DataSet subject, DataSet expectation, Dictionary<string, IMember> selectedMembers, AssertionChain assertionChain)
     {
         // Note: The members here are listed in the XML documentation for the DataSet.BeEquivalentTo extension
         // method in DataSetAssertions.cs. If this ever needs to change, keep them in sync.
         if (selectedMembers.ContainsKey(nameof(expectation.DataSetName)))
         {
-            AssertionScope.Current
+            assertionChain
                 .ForCondition(subject.DataSetName == expectation.DataSetName)
                 .FailWith("Expected {context:DataSet} to have DataSetName {0}{reason}, but found {1} instead",
                     expectation.DataSetName, subject.DataSetName);
@@ -71,7 +73,7 @@ public class DataSetEquivalencyStep : EquivalencyStep<DataSet>
 
         if (selectedMembers.ContainsKey(nameof(expectation.CaseSensitive)))
         {
-            AssertionScope.Current
+            assertionChain
                 .ForCondition(subject.CaseSensitive == expectation.CaseSensitive)
                 .FailWith("Expected {context:DataSet} to have CaseSensitive value of {0}{reason}, but found {1} instead",
                     expectation.CaseSensitive, subject.CaseSensitive);
@@ -79,7 +81,7 @@ public class DataSetEquivalencyStep : EquivalencyStep<DataSet>
 
         if (selectedMembers.ContainsKey(nameof(expectation.EnforceConstraints)))
         {
-            AssertionScope.Current
+            assertionChain
                 .ForCondition(subject.EnforceConstraints == expectation.EnforceConstraints)
                 .FailWith("Expected {context:DataSet} to have EnforceConstraints value of {0}{reason}, but found {1} instead",
                     expectation.EnforceConstraints, subject.EnforceConstraints);
@@ -87,7 +89,7 @@ public class DataSetEquivalencyStep : EquivalencyStep<DataSet>
 
         if (selectedMembers.ContainsKey(nameof(expectation.HasErrors)))
         {
-            AssertionScope.Current
+            assertionChain
                 .ForCondition(subject.HasErrors == expectation.HasErrors)
                 .FailWith("Expected {context:DataSet} to have HasErrors value of {0}{reason}, but found {1} instead",
                     expectation.HasErrors, subject.HasErrors);
@@ -95,7 +97,7 @@ public class DataSetEquivalencyStep : EquivalencyStep<DataSet>
 
         if (selectedMembers.ContainsKey(nameof(expectation.Locale)))
         {
-            AssertionScope.Current
+            assertionChain
                 .ForCondition(Equals(subject.Locale, expectation.Locale))
                 .FailWith("Expected {context:DataSet} to have Locale value of {0}{reason}, but found {1} instead",
                     expectation.Locale, subject.Locale);
@@ -103,7 +105,7 @@ public class DataSetEquivalencyStep : EquivalencyStep<DataSet>
 
         if (selectedMembers.ContainsKey(nameof(expectation.Namespace)))
         {
-            AssertionScope.Current
+            assertionChain
                 .ForCondition(subject.Namespace == expectation.Namespace)
                 .FailWith("Expected {context:DataSet} to have Namespace value of {0}{reason}, but found {1} instead",
                     expectation.Namespace, subject.Namespace);
@@ -111,7 +113,7 @@ public class DataSetEquivalencyStep : EquivalencyStep<DataSet>
 
         if (selectedMembers.ContainsKey(nameof(expectation.Prefix)))
         {
-            AssertionScope.Current
+            assertionChain
                 .ForCondition(subject.Prefix == expectation.Prefix)
                 .FailWith("Expected {context:DataSet} to have Prefix value of {0}{reason}, but found {1} instead",
                     expectation.Prefix, subject.Prefix);
@@ -119,7 +121,7 @@ public class DataSetEquivalencyStep : EquivalencyStep<DataSet>
 
         if (selectedMembers.ContainsKey(nameof(expectation.RemotingFormat)))
         {
-            AssertionScope.Current
+            assertionChain
                 .ForCondition(subject.RemotingFormat == expectation.RemotingFormat)
                 .FailWith("Expected {context:DataSet} to have RemotingFormat value of {0}{reason}, but found {1} instead",
                     expectation.RemotingFormat, subject.RemotingFormat);
@@ -127,7 +129,7 @@ public class DataSetEquivalencyStep : EquivalencyStep<DataSet>
 
         if (selectedMembers.ContainsKey(nameof(expectation.SchemaSerializationMode)))
         {
-            AssertionScope.Current
+            assertionChain
                 .ForCondition(subject.SchemaSerializationMode == expectation.SchemaSerializationMode)
                 .FailWith(
                     "Expected {context:DataSet} to have SchemaSerializationMode value of {0}{reason}, but found {1} instead",
@@ -135,26 +137,26 @@ public class DataSetEquivalencyStep : EquivalencyStep<DataSet>
         }
     }
 
-    private static void CompareCollections(IEquivalencyValidationContext context, IEquivalencyValidator parent,
-        IEquivalencyAssertionOptions config, DataSet subject, DataSet expectation,
-        DataEquivalencyAssertionOptions<DataSet> dataConfig, Dictionary<string, IMember> selectedMembers)
+    private static void CompareCollections(IEquivalencyValidationContext context, IValidateChildNodeEquivalency parent,
+        IEquivalencyOptions config, DataSet subject, DataSet expectation,
+        DataEquivalencyAssertionOptions<DataSet> dataConfig, Dictionary<string, IMember> selectedMembers, AssertionChain assertionChain)
     {
         // Note: The collections here are listed in the XML documentation for the DataSet.BeEquivalentTo extension
         // method in DataSetAssertions.cs. If this ever needs to change, keep them in sync.
         CompareExtendedProperties(new Comparands(subject, expectation, typeof(DataSet)), context, parent, config,
-            selectedMembers);
+            selectedMembers, assertionChain);
 
-        CompareTables(context, parent, subject, expectation, dataConfig, selectedMembers);
+        CompareTables(context, parent, subject, expectation, dataConfig, selectedMembers, assertionChain);
     }
 
     private static void CompareExtendedProperties(Comparands comparands, IEquivalencyValidationContext context,
-        IEquivalencyValidator parent, IEquivalencyAssertionOptions config, Dictionary<string, IMember> selectedMembers)
+        IValidateChildNodeEquivalency parent, IEquivalencyOptions config, Dictionary<string, IMember> selectedMembers, AssertionChain assertionChain)
     {
         foreach (var collectionName in new[] { nameof(DataSet.ExtendedProperties), nameof(DataSet.Relations) })
         {
             if (selectedMembers.TryGetValue(collectionName, out IMember expectationMember))
             {
-                IMember matchingMember = FindMatchFor(expectationMember, comparands.Subject, context.CurrentNode, config);
+                IMember matchingMember = FindMatchFor(expectationMember, comparands.Subject, context.CurrentNode, config, assertionChain);
 
                 if (matchingMember is not null)
                 {
@@ -166,23 +168,24 @@ public class DataSetEquivalencyStep : EquivalencyStep<DataSet>
                     };
 
                     IEquivalencyValidationContext nestedContext = context.AsNestedMember(expectationMember);
-                    parent.RecursivelyAssertEquality(nestedComparands, nestedContext);
+                    parent.AssertEquivalencyOf(nestedComparands, nestedContext);
                 }
             }
         }
     }
 
-    private static void CompareTables(IEquivalencyValidationContext context, IEquivalencyValidator parent, DataSet subject,
-        DataSet expectation, DataEquivalencyAssertionOptions<DataSet> dataConfig, Dictionary<string, IMember> selectedMembers)
+    private static void CompareTables(IEquivalencyValidationContext context, IValidateChildNodeEquivalency parent, DataSet subject,
+        DataSet expectation, DataEquivalencyAssertionOptions<DataSet> dataConfig, Dictionary<string, IMember> selectedMembers,
+        AssertionChain assertionChain)
     {
         if (selectedMembers.ContainsKey(nameof(expectation.Tables)))
         {
-            bool success = AssertionScope.Current
+            assertionChain
                 .ForCondition(subject.Tables.Count == expectation.Tables.Count)
                 .FailWith("Expected {context:DataSet} to contain {0}, but found {1} table(s)", expectation.Tables.Count,
                     subject.Tables.Count);
 
-            if (!success)
+            if (!assertionChain.Succeeded)
             {
                 return;
             }
@@ -216,37 +219,37 @@ public class DataSetEquivalencyStep : EquivalencyStep<DataSet>
                     continue;
                 }
 
-                CompareTable(context, parent, subject, expectation, tableName);
+                CompareTable(context, parent, subject, expectation, tableName, assertionChain);
             }
         }
     }
 
-    private static void CompareTable(IEquivalencyValidationContext context, IEquivalencyValidator parent, DataSet subject,
-        DataSet expectation, string tableName)
+    private static void CompareTable(IEquivalencyValidationContext context, IValidateChildNodeEquivalency parent, DataSet subject,
+        DataSet expectation, string tableName, AssertionChain assertionChain)
     {
         DataTable expectationTable = expectation.Tables[tableName];
         DataTable subjectTable = subject.Tables[tableName];
 
-        bool success = AssertionScope.Current
+        assertionChain
             .ForCondition(subjectTable is not null)
             .FailWith("Expected {context:DataSet} to contain table {0}{reason}, but did not find it", tableName)
             .Then
             .ForCondition(expectationTable is not null)
             .FailWith("Found unexpected table {0} in DataSet", tableName);
 
-        if (success)
+        if (assertionChain.Succeeded)
         {
             IEquivalencyValidationContext nestedContext = context.AsCollectionItem<DataTable>(tableName);
-            parent.RecursivelyAssertEquality(new Comparands(subjectTable, expectationTable, typeof(DataTable)), nestedContext);
+            parent.AssertEquivalencyOf(new Comparands(subjectTable, expectationTable, typeof(DataTable)), nestedContext);
         }
     }
 
     private static IMember FindMatchFor(IMember selectedMemberInfo, object subject, INode currentNode,
-        IEquivalencyAssertionOptions options)
+        IEquivalencyOptions options, AssertionChain assertionChain)
     {
         IEnumerable<IMember> query =
             from rule in options.MatchingRules
-            let match = rule.Match(selectedMemberInfo, subject, currentNode, options)
+            let match = rule.Match(selectedMemberInfo, subject, currentNode, options, assertionChain)
             where match is not null
             select match;
 
@@ -255,7 +258,7 @@ public class DataSetEquivalencyStep : EquivalencyStep<DataSet>
 
     private static IEnumerable<IMember> GetMembersFromExpectation(Comparands comparands,
         INode contextCurrentNode,
-        IEquivalencyAssertionOptions options)
+        IEquivalencyOptions options)
     {
         IEnumerable<IMember> members = Enumerable.Empty<IMember>();
 

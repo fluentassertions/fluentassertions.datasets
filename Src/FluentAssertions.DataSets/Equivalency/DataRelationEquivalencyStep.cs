@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using FluentAssertions.DataSets.Common;
 using FluentAssertions.Equivalency;
 using FluentAssertions.Execution;
 
@@ -12,26 +13,27 @@ public class DataRelationEquivalencyStep : EquivalencyStep<DataRelation>
 {
     [SuppressMessage("Style", "IDE0019:Use pattern matching", Justification = "The code is easier to read without it.")]
     protected override EquivalencyResult OnHandle(Comparands comparands, IEquivalencyValidationContext context,
-        IEquivalencyValidator nestedValidator)
+        IValidateChildNodeEquivalency nestedValidator)
     {
+        var assertionChain = AssertionChain.GetOrCreate().For(context);
         var subject = comparands.Subject as DataRelation;
 
         if (comparands.Expectation is not DataRelation expectation)
         {
             if (subject is not null)
             {
-                AssertionScope.Current.FailWith("Expected {context:DataRelation} to be null, but found {0}", subject);
+                assertionChain.FailWith("Expected {context:DataRelation} to be null, but found {0}", subject);
             }
         }
         else if (subject is null)
         {
             if (comparands.Subject is null)
             {
-                AssertionScope.Current.FailWith("Expected {context:DataRelation} value to be non-null, but found null");
+                assertionChain.FailWith("Expected {context:DataRelation} value to be non-null, but found null");
             }
             else
             {
-                AssertionScope.Current.FailWith("Expected {context:DataRelation} of type {0}, but found {1} instead",
+                assertionChain.FailWith("Expected {context:DataRelation} of type {0}, but found {1} instead",
                     expectation.GetType(), comparands.Subject.GetType());
             }
         }
@@ -40,22 +42,22 @@ public class DataRelationEquivalencyStep : EquivalencyStep<DataRelation>
             var selectedMembers = GetMembersFromExpectation(context.CurrentNode, comparands, context.Options)
                 .ToDictionary(member => member.Name);
 
-            CompareScalarProperties(subject, expectation, selectedMembers);
+            CompareScalarProperties(subject, expectation, selectedMembers, assertionChain);
 
-            CompareCollections(context, comparands, nestedValidator, context.Options, selectedMembers);
+            CompareCollections(context, comparands, nestedValidator, context.Options, selectedMembers, assertionChain);
 
-            CompareRelationConstraints(context, nestedValidator, subject, expectation, selectedMembers);
+            CompareRelationConstraints(context, nestedValidator, subject, expectation, selectedMembers, assertionChain);
         }
 
-        return EquivalencyResult.AssertionCompleted;
+        return EquivalencyResult.EquivalencyProven;
     }
 
     private static void CompareScalarProperties(DataRelation subject, DataRelation expectation,
-        Dictionary<string, IMember> selectedMembers)
+        Dictionary<string, IMember> selectedMembers, AssertionChain assertionChain)
     {
         if (selectedMembers.ContainsKey(nameof(expectation.RelationName)))
         {
-            AssertionScope.Current
+            assertionChain
                 .ForCondition(subject.RelationName == expectation.RelationName)
                 .FailWith("Expected {context:DataRelation} to have RelationName of {0}{reason}, but found {1}",
                     expectation.RelationName, subject.RelationName);
@@ -63,7 +65,7 @@ public class DataRelationEquivalencyStep : EquivalencyStep<DataRelation>
 
         if (selectedMembers.ContainsKey(nameof(expectation.Nested)))
         {
-            AssertionScope.Current
+            assertionChain
                 .ForCondition(subject.Nested == expectation.Nested)
                 .FailWith("Expected {context:DataRelation} to have Nested value of {0}{reason}, but found {1}",
                     expectation.Nested, subject.Nested);
@@ -72,7 +74,7 @@ public class DataRelationEquivalencyStep : EquivalencyStep<DataRelation>
         // Special case: Compare name only
         if (selectedMembers.ContainsKey(nameof(expectation.DataSet)))
         {
-            AssertionScope.Current
+            assertionChain
                 .ForCondition(subject.DataSet?.DataSetName == expectation.DataSet?.DataSetName)
                 .FailWith("Expected containing DataSet of {context:DataRelation} to be {0}{reason}, but found {1}",
                     expectation.DataSet?.DataSetName ?? "<null>",
@@ -81,12 +83,12 @@ public class DataRelationEquivalencyStep : EquivalencyStep<DataRelation>
     }
 
     private static void CompareCollections(IEquivalencyValidationContext context, Comparands comparands,
-        IEquivalencyValidator parent,
-        IEquivalencyAssertionOptions config, Dictionary<string, IMember> selectedMembers)
+        IValidateChildNodeEquivalency parent,
+        IEquivalencyOptions config, Dictionary<string, IMember> selectedMembers, AssertionChain assertionChain)
     {
         if (selectedMembers.TryGetValue(nameof(DataRelation.ExtendedProperties), out IMember expectationMember))
         {
-            IMember matchingMember = FindMatchFor(expectationMember, context.CurrentNode, comparands.Subject, config);
+            IMember matchingMember = FindMatchFor(expectationMember, context.CurrentNode, comparands.Subject, config, assertionChain);
 
             if (matchingMember is not null)
             {
@@ -97,14 +99,15 @@ public class DataRelationEquivalencyStep : EquivalencyStep<DataRelation>
                     CompileTimeType = expectationMember.Type
                 };
 
-                parent.RecursivelyAssertEquality(nestedComparands, context.AsNestedMember(expectationMember));
+                parent.AssertEquivalencyOf(nestedComparands, context.AsNestedMember(expectationMember));
             }
         }
     }
 
-    private static void CompareRelationConstraints(IEquivalencyValidationContext context, IEquivalencyValidator parent,
+    private static void CompareRelationConstraints(IEquivalencyValidationContext context, IValidateChildNodeEquivalency parent,
         DataRelation subject, DataRelation expectation,
-        Dictionary<string, IMember> selectedMembers)
+        Dictionary<string, IMember> selectedMembers,
+        AssertionChain assertionChain)
     {
         CompareDataRelationConstraints(
             parent, context, subject, expectation, selectedMembers,
@@ -113,7 +116,7 @@ public class DataRelationEquivalencyStep : EquivalencyStep<DataRelation>
             selectedMembers.ContainsKey(nameof(DataRelation.ChildColumns)),
             selectedMembers.ContainsKey(nameof(DataRelation.ChildKeyConstraint)),
             r => r.ChildColumns,
-            r => r.ChildTable);
+            r => r.ChildTable, assertionChain);
 
         CompareDataRelationConstraints(
             parent, context, subject, expectation, selectedMembers,
@@ -122,47 +125,48 @@ public class DataRelationEquivalencyStep : EquivalencyStep<DataRelation>
             selectedMembers.ContainsKey(nameof(DataRelation.ParentColumns)),
             selectedMembers.ContainsKey(nameof(DataRelation.ParentKeyConstraint)),
             r => r.ParentColumns,
-            r => r.ParentTable);
+            r => r.ParentTable, assertionChain);
     }
 
     private static void CompareDataRelationConstraints(
-        IEquivalencyValidator parent, IEquivalencyValidationContext context,
+        IValidateChildNodeEquivalency parent, IEquivalencyValidationContext context,
         DataRelation subject, DataRelation expectation, Dictionary<string, IMember> selectedMembers,
         string relationDirection,
         bool compareTable, bool compareColumns, bool compareKeyConstraint,
         Func<DataRelation, DataColumn[]> getColumns,
-        Func<DataRelation, DataTable> getOtherTable)
+        Func<DataRelation, DataTable> getOtherTable,
+        AssertionChain assertionChain)
     {
         if (compareColumns)
         {
-            CompareDataRelationColumns(subject, expectation, getColumns);
+            CompareDataRelationColumns(subject, expectation, getColumns, assertionChain);
         }
 
         if (compareTable)
         {
-            CompareDataRelationTable(subject, expectation, getOtherTable);
+            CompareDataRelationTable(subject, expectation, getOtherTable, assertionChain);
         }
 
         if (compareKeyConstraint)
         {
-            CompareDataRelationKeyConstraint(subject, expectation, parent, context, selectedMembers, relationDirection);
+            CompareDataRelationKeyConstraint(subject, expectation, parent, context, selectedMembers, relationDirection, assertionChain);
         }
     }
 
     private static void CompareDataRelationColumns(DataRelation subject, DataRelation expectation,
-        Func<DataRelation, DataColumn[]> getColumns)
+        Func<DataRelation, DataColumn[]> getColumns, AssertionChain assertionChain)
     {
         DataColumn[] subjectColumns = getColumns(subject);
         DataColumn[] expectationColumns = getColumns(expectation);
 
         // These column references are in different tables in different data sets that _should_ be equivalent
         // to one another.
-        bool success = AssertionScope.Current
+        assertionChain
             .ForCondition(subjectColumns.Length == expectationColumns.Length)
             .FailWith("Expected {context:DataRelation} to reference {0} column(s){reason}, but found {subjectColumns.Length}",
                 expectationColumns.Length, subjectColumns.Length);
 
-        if (success)
+        if (assertionChain.Succeeded)
         {
             for (int i = 0; i < expectationColumns.Length; i++)
             {
@@ -173,7 +177,7 @@ public class DataRelationEquivalencyStep : EquivalencyStep<DataRelation>
                     subjectColumn.Table.TableName == expectationColumn.Table.TableName &&
                     subjectColumn.ColumnName == expectationColumn.ColumnName;
 
-                AssertionScope.Current
+                assertionChain
                     .ForCondition(columnsAreEquivalent)
                     .FailWith(
                         "Expected {context:DataRelation} to reference column {0} in table {1}{reason}, but found a reference to {2} in table {3} instead",
@@ -186,24 +190,24 @@ public class DataRelationEquivalencyStep : EquivalencyStep<DataRelation>
     }
 
     private static void CompareDataRelationTable(DataRelation subject, DataRelation expectation,
-        Func<DataRelation, DataTable> getOtherTable)
+        Func<DataRelation, DataTable> getOtherTable, AssertionChain assertionChain)
     {
         DataTable subjectTable = getOtherTable(subject);
         DataTable expectationTable = getOtherTable(expectation);
 
-        AssertionScope.Current
+        assertionChain
             .ForCondition(subjectTable.TableName == expectationTable.TableName)
             .FailWith("Expected {context:DataRelation} to reference a table named {0}{reason}, but found {1} instead",
                 expectationTable.TableName, subjectTable.TableName);
     }
 
     private static void CompareDataRelationKeyConstraint(DataRelation subject, DataRelation expectation,
-        IEquivalencyValidator parent, IEquivalencyValidationContext context, Dictionary<string, IMember> selectedMembers,
-        string relationDirection)
+        IValidateChildNodeEquivalency parent, IEquivalencyValidationContext context, Dictionary<string, IMember> selectedMembers,
+        string relationDirection, AssertionChain assertionChain)
     {
         if (selectedMembers.TryGetValue(relationDirection + "KeyConstraint", out IMember expectationMember))
         {
-            IMember subjectMember = FindMatchFor(expectationMember, context.CurrentNode, subject, context.Options);
+            IMember subjectMember = FindMatchFor(expectationMember, context.CurrentNode, subject, context.Options, assertionChain);
 
             var newComparands = new Comparands
             {
@@ -212,16 +216,16 @@ public class DataRelationEquivalencyStep : EquivalencyStep<DataRelation>
                 CompileTimeType = expectationMember.Type
             };
 
-            parent.RecursivelyAssertEquality(newComparands, context.AsNestedMember(expectationMember));
+            parent.AssertEquivalencyOf(newComparands, context.AsNestedMember(expectationMember));
         }
     }
 
     private static IMember FindMatchFor(IMember selectedMemberInfo, INode currentNode, object subject,
-        IEquivalencyAssertionOptions config)
+        IEquivalencyOptions config, AssertionChain assertionChain)
     {
         IEnumerable<IMember> query =
             from rule in config.MatchingRules
-            let match = rule.Match(selectedMemberInfo, subject, currentNode, config)
+            let match = rule.Match(selectedMemberInfo, subject, currentNode, config, assertionChain)
             where match is not null
             select match;
 
@@ -229,7 +233,7 @@ public class DataRelationEquivalencyStep : EquivalencyStep<DataRelation>
     }
 
     private static IEnumerable<IMember> GetMembersFromExpectation(INode currentNode, Comparands comparands,
-        IEquivalencyAssertionOptions config)
+        IEquivalencyOptions config)
     {
         IEnumerable<IMember> members = Enumerable.Empty<IMember>();
 

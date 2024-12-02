@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using FluentAssertions.DataSets.Common;
 using FluentAssertions.Equivalency;
 using FluentAssertions.Execution;
 
@@ -9,11 +10,13 @@ namespace FluentAssertions.DataSets.Equivalency;
 public class ConstraintCollectionEquivalencyStep : EquivalencyStep<ConstraintCollection>
 {
     protected override EquivalencyResult OnHandle(Comparands comparands, IEquivalencyValidationContext context,
-        IEquivalencyValidator nestedValidator)
+        IValidateChildNodeEquivalency nestedValidator)
     {
+        var assertionChain = AssertionChain.GetOrCreate().For(context);
+
         if (comparands.Subject is not ConstraintCollection)
         {
-            AssertionScope.Current
+            assertionChain
                 .FailWith("Expected a value of type ConstraintCollection at {context:Constraints}, but found {0}",
                     comparands.Subject.GetType());
         }
@@ -29,12 +32,12 @@ public class ConstraintCollectionEquivalencyStep : EquivalencyStep<ConstraintCol
 
             foreach (var constraintName in constraintNames)
             {
-                AssertionScope.Current
+                assertionChain
                     .ForCondition(subjectConstraints.TryGetValue(constraintName, out Constraint subjectConstraint))
                     .FailWith("Expected constraint named {0} in {context:Constraints collection}{reason}, but did not find one",
                         constraintName);
 
-                AssertionScope.Current
+                assertionChain
                     .ForCondition(expectationConstraints.TryGetValue(constraintName, out Constraint expectationConstraint))
                     .FailWith("Found unexpected constraint named {0} in {context:Constraints collection}", constraintName);
 
@@ -48,11 +51,11 @@ public class ConstraintCollectionEquivalencyStep : EquivalencyStep<ConstraintCol
                     };
 
                     IEquivalencyValidationContext nestedContext = context.AsCollectionItem<Constraint>(constraintName);
-                    nestedValidator.RecursivelyAssertEquality(newComparands, nestedContext);
+                    nestedValidator.AssertEquivalencyOf(newComparands, nestedContext);
                 }
             }
         }
 
-        return EquivalencyResult.AssertionCompleted;
+        return EquivalencyResult.EquivalencyProven;
     }
 }

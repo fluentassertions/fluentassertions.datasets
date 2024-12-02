@@ -3,6 +3,7 @@ using System.Diagnostics;
 using FluentAssertions.Collections;
 using FluentAssertions.DataSets;
 using FluentAssertions.DataSets.Common;
+using FluentAssertions.Execution;
 using JetBrains.Annotations;
 
 // ReSharper disable once CheckNamespace
@@ -21,7 +22,7 @@ public static class AssertionExtensions
     public static GenericCollectionAssertions<DataTable> Should(this DataTableCollection actualValue)
     {
         return new GenericCollectionAssertions<DataTable>(
-            ReadOnlyNonGenericCollectionWrapper.Create(actualValue));
+            ReadOnlyNonGenericCollectionWrapper.Create(actualValue), AssertionChain.GetOrCreate());
     }
 
     /// <summary>
@@ -31,7 +32,7 @@ public static class AssertionExtensions
     public static GenericCollectionAssertions<DataColumn> Should(this DataColumnCollection actualValue)
     {
         return new GenericCollectionAssertions<DataColumn>(
-            ReadOnlyNonGenericCollectionWrapper.Create(actualValue));
+            ReadOnlyNonGenericCollectionWrapper.Create(actualValue), AssertionChain.GetOrCreate());
     }
 
     /// <summary>
@@ -41,7 +42,7 @@ public static class AssertionExtensions
     public static GenericCollectionAssertions<DataRow> Should(this DataRowCollection actualValue)
     {
         return new GenericCollectionAssertions<DataRow>(
-            ReadOnlyNonGenericCollectionWrapper.Create(actualValue));
+            ReadOnlyNonGenericCollectionWrapper.Create(actualValue), AssertionChain.GetOrCreate());
     }
 
     /// <summary>
@@ -51,6 +52,6 @@ public static class AssertionExtensions
     [Pure]
     public static DataColumnAssertions Should(this DataColumn actualValue)
     {
-        return new DataColumnAssertions(actualValue);
+        return new DataColumnAssertions(actualValue, AssertionChain.GetOrCreate());
     }
 }

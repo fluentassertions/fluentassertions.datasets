@@ -6,9 +6,8 @@
     <OutputType>Exe</OutputType>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="BenchmarkDotNet" Version="0.13.9" />
-    <PackageReference Include="Bogus" Version="34.0.2" />
-    <PackageReference Include="System.Collections" Version="4.3.0" />
+    <PackageReference Include="BenchmarkDotNet" Version="0.14.0" />
+    <PackageReference Include="Bogus" Version="35.6.1" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FluentAssertions">

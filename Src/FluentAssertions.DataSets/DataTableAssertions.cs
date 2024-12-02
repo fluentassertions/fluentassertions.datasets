@@ -18,8 +18,8 @@ namespace FluentAssertions.DataSets;
 public class DataTableAssertions<TDataTable> : ReferenceTypeAssertions<DataTable, DataTableAssertions<TDataTable>>
     where TDataTable : DataTable
 {
-    public DataTableAssertions(TDataTable dataTable)
-        : base(dataTable)
+    public DataTableAssertions(TDataTable dataTable, AssertionChain assertionChain)
+        : base(dataTable, assertionChain)
     {
     }
 
@@ -37,16 +37,16 @@ public class DataTableAssertions<TDataTable> : ReferenceTypeAssertions<DataTable
     public AndConstraint<DataTableAssertions<TDataTable>> HaveRowCount(int expected, string because = "",
         params object[] becauseArgs)
     {
-        bool success = Execute.Assertion
+        CurrentAssertionChain
             .ForCondition(Subject is not null)
             .BecauseOf(because, becauseArgs)
             .FailWith("Expected {context:DataTable} to contain exactly {0} row(s){reason}, but found <null>.", expected);
 
-        if (success)
+        if (CurrentAssertionChain.Succeeded)
         {
             int actualCount = Subject.Rows.Count;
 
-            Execute.Assertion
+            CurrentAssertionChain
                 .ForCondition(actualCount == expected)
                 .BecauseOf(because, becauseArgs)
                 .FailWith("Expected {context:DataTable} to contain exactly {0} row(s){reason}, but found {1}.", expected,
@@ -74,14 +74,14 @@ public class DataTableAssertions<TDataTable> : ReferenceTypeAssertions<DataTable
 
         if (Subject is null)
         {
-            Execute.Assertion
+            CurrentAssertionChain
                 .BecauseOf(because, becauseArgs)
                 .FailWith("Expected {context:DataTable} to contain a column named {0}{reason}, but found <null>.",
                     expectedColumnName);
         }
         else if (!Subject.Columns.Contains(expectedColumnName))
         {
-            Execute.Assertion
+            CurrentAssertionChain
                 .BecauseOf(because, becauseArgs)
                 .FailWith("Expected {context:DataTable} to contain a column named {0}{reason}, but it does not.",
                     expectedColumnName);
@@ -117,17 +117,17 @@ public class DataTableAssertions<TDataTable> : ReferenceTypeAssertions<DataTable
     public AndConstraint<DataTableAssertions<TDataTable>> HaveColumns(IEnumerable<string> expectedColumnNames,
         string because = "", params object[] becauseArgs)
     {
-        bool success = Execute.Assertion
+        CurrentAssertionChain
             .ForCondition(Subject is not null)
             .BecauseOf(because, becauseArgs)
             .FailWith("Expected {context:DataTable} to contain {0} column(s) with specific names{reason}, but found <null>.",
                 () => expectedColumnNames.Count());
 
-        if (success)
+        if (CurrentAssertionChain.Succeeded)
         {
             foreach (var expectedColumnName in expectedColumnNames)
             {
-                Execute.Assertion
+                CurrentAssertionChain
                     .ForCondition(Subject.Columns.Contains(expectedColumnName))
                     .BecauseOf(because, becauseArgs)
                     .FailWith("Expected {context:DataTable} to contain a column named {0}{reason}, but it does not.",
@@ -259,22 +259,9 @@ public class DataTableAssertions<TDataTable> : ReferenceTypeAssertions<DataTable
         Guard.ThrowIfArgumentIsNull(config);
 
         var defaults = new DataEquivalencyAssertionOptions<DataTable>(AssertionOptions.CloneDefaults<DataTable>());
-        IDataEquivalencyAssertionOptions<DataTable> options = config(defaults);
+        config(defaults);
 
-        var context = new EquivalencyValidationContext(Node.From<DataTable>(() => AssertionScope.Current.CallerIdentity), options)
-        {
-            Reason = new Reason(because, becauseArgs),
-            TraceWriter = options.TraceWriter
-        };
-
-        var comparands = new Comparands
-        {
-            Subject = Subject,
-            Expectation = expectation,
-            CompileTimeType = typeof(TDataTable),
-        };
-
-        new EquivalencyValidator().AssertEquality(comparands, context);
+        ((object)Subject).Should().BeEquivalentTo(expectation, _ => defaults, because, becauseArgs);
 
         return new AndConstraint<DataTableAssertions<TDataTable>>(this);
     }

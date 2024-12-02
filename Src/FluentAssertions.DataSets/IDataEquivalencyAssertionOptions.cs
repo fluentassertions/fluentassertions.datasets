@@ -12,7 +12,7 @@ namespace FluentAssertions.DataSets;
 /// <see cref="Constraint"/>).
 /// </summary>
 /// <typeparam name="T">The System.Data type being tested for equivalency.</typeparam>
-public interface IDataEquivalencyAssertionOptions<T> : IEquivalencyAssertionOptions
+public interface IDataEquivalencyAssertionOptions<T> : IEquivalencyOptions
 {
     /// <summary>
     /// Specifies that the subject and the expectation should not be considered non-equivalent if their exact data types do not match.

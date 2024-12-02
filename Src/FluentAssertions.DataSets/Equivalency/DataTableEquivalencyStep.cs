@@ -2,6 +2,7 @@
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using FluentAssertions.DataSets.Common;
 using FluentAssertions.Equivalency;
 using FluentAssertions.Execution;
 
@@ -11,26 +12,28 @@ public class DataTableEquivalencyStep : EquivalencyStep<DataTable>
 {
     [SuppressMessage("Style", "IDE0019:Use pattern matching", Justification = "The code is easier to read without it.")]
     protected override EquivalencyResult OnHandle(Comparands comparands, IEquivalencyValidationContext context,
-        IEquivalencyValidator nestedValidator)
+        IValidateChildNodeEquivalency nestedValidator)
     {
+        var assertionChain = AssertionChain.GetOrCreate().For(context);
+
         var subject = comparands.Subject as DataTable;
 
         if (comparands.Expectation is not DataTable expectation)
         {
             if (subject is not null)
             {
-                AssertionScope.Current.FailWith("Expected {context:DataTable} value to be null, but found {0}", subject);
+                assertionChain.FailWith("Expected {context:DataTable} value to be null, but found {0}", subject);
             }
         }
         else if (subject is null)
         {
             if (comparands.Subject is null)
             {
-                AssertionScope.Current.FailWith("Expected {context:DataTable} to be non-null, but found null");
+                assertionChain.FailWith("Expected {context:DataTable} to be non-null, but found null");
             }
             else
             {
-                AssertionScope.Current.FailWith("Expected {context:DataTable} to be of type {0}, but found {1} instead",
+                assertionChain.FailWith("Expected {context:DataTable} to be of type {0}, but found {1} instead",
                     expectation.GetType(), comparands.Subject.GetType());
             }
         }
@@ -42,7 +45,7 @@ public class DataTableEquivalencyStep : EquivalencyStep<DataTable>
             if (dataSetConfig?.AllowMismatchedTypes != true
                 && dataTableConfig?.AllowMismatchedTypes != true)
             {
-                AssertionScope.Current
+                assertionChain
                     .ForCondition(subject.GetType() == expectation.GetType())
                     .FailWith("Expected {context:DataTable} to be of type {0}{reason}, but found {1}", expectation.GetType(),
                         subject.GetType());
@@ -51,23 +54,23 @@ public class DataTableEquivalencyStep : EquivalencyStep<DataTable>
             var selectedMembers = GetMembersFromExpectation(context.CurrentNode, comparands, context.Options)
                 .ToDictionary(member => member.Name);
 
-            CompareScalarProperties(subject, expectation, selectedMembers);
+            CompareScalarProperties(subject, expectation, selectedMembers, assertionChain);
 
-            CompareCollections(comparands, context, nestedValidator, context.Options, selectedMembers);
+            CompareCollections(comparands, context, nestedValidator, context.Options, selectedMembers, assertionChain);
         }
 
-        return EquivalencyResult.AssertionCompleted;
+        return EquivalencyResult.EquivalencyProven;
     }
 
     [SuppressMessage("Design", "MA0051:Method is too long")]
     private static void CompareScalarProperties(DataTable subject, DataTable expectation,
-        Dictionary<string, IMember> selectedMembers)
+        Dictionary<string, IMember> selectedMembers, AssertionChain assertionChain)
     {
         // Note: The members here are listed in the XML documentation for the DataTable.BeEquivalentTo extension
         // method in DataTableAssertions.cs. If this ever needs to change, keep them in sync.
         if (selectedMembers.ContainsKey(nameof(expectation.TableName)))
         {
-            AssertionScope.Current
+            assertionChain
                 .ForCondition(subject.TableName == expectation.TableName)
                 .FailWith("Expected {context:DataTable} to have TableName {0}{reason}, but found {1} instead",
                     expectation.TableName, subject.TableName);
@@ -75,7 +78,7 @@ public class DataTableEquivalencyStep : EquivalencyStep<DataTable>
 
         if (selectedMembers.ContainsKey(nameof(expectation.CaseSensitive)))
         {
-            AssertionScope.Current
+            assertionChain
                 .ForCondition(subject.CaseSensitive == expectation.CaseSensitive)
                 .FailWith("Expected {context:DataTable} to have CaseSensitive value of {0}{reason}, but found {1} instead",
                     expectation.CaseSensitive, subject.CaseSensitive);
@@ -83,7 +86,7 @@ public class DataTableEquivalencyStep : EquivalencyStep<DataTable>
 
         if (selectedMembers.ContainsKey(nameof(expectation.DisplayExpression)))
         {
-            AssertionScope.Current
+            assertionChain
                 .ForCondition(subject.DisplayExpression == expectation.DisplayExpression)
                 .FailWith("Expected {context:DataTable} to have DisplayExpression value of {0}{reason}, but found {1} instead",
                     expectation.DisplayExpression, subject.DisplayExpression);
@@ -91,7 +94,7 @@ public class DataTableEquivalencyStep : EquivalencyStep<DataTable>
 
         if (selectedMembers.ContainsKey(nameof(expectation.HasErrors)))
         {
-            AssertionScope.Current
+            assertionChain
                 .ForCondition(subject.HasErrors == expectation.HasErrors)
                 .FailWith("Expected {context:DataTable} to have HasErrors value of {0}{reason}, but found {1} instead",
                     expectation.HasErrors, subject.HasErrors);
@@ -99,7 +102,7 @@ public class DataTableEquivalencyStep : EquivalencyStep<DataTable>
 
         if (selectedMembers.ContainsKey(nameof(expectation.Locale)))
         {
-            AssertionScope.Current
+            assertionChain
                 .ForCondition(Equals(subject.Locale, expectation.Locale))
                 .FailWith("Expected {context:DataTable} to have Locale value of {0}{reason}, but found {1} instead",
                     expectation.Locale, subject.Locale);
@@ -107,7 +110,7 @@ public class DataTableEquivalencyStep : EquivalencyStep<DataTable>
 
         if (selectedMembers.ContainsKey(nameof(expectation.Namespace)))
         {
-            AssertionScope.Current
+            assertionChain
                 .ForCondition(subject.Namespace == expectation.Namespace)
                 .FailWith("Expected {context:DataTable} to have Namespace value of {0}{reason}, but found {1} instead",
                     expectation.Namespace, subject.Namespace);
@@ -115,7 +118,7 @@ public class DataTableEquivalencyStep : EquivalencyStep<DataTable>
 
         if (selectedMembers.ContainsKey(nameof(expectation.Prefix)))
         {
-            AssertionScope.Current
+            assertionChain
                 .ForCondition(subject.Prefix == expectation.Prefix)
                 .FailWith("Expected {context:DataTable} to have Prefix value of {0}{reason}, but found {1} instead",
                     expectation.Prefix, subject.Prefix);
@@ -123,7 +126,7 @@ public class DataTableEquivalencyStep : EquivalencyStep<DataTable>
 
         if (selectedMembers.ContainsKey(nameof(expectation.RemotingFormat)))
         {
-            AssertionScope.Current
+            assertionChain
                 .ForCondition(subject.RemotingFormat == expectation.RemotingFormat)
                 .FailWith("Expected {context:DataTable} to have RemotingFormat value of {0}{reason}, but found {1} instead",
                     expectation.RemotingFormat, subject.RemotingFormat);
@@ -131,7 +134,8 @@ public class DataTableEquivalencyStep : EquivalencyStep<DataTable>
     }
 
     private static void CompareCollections(Comparands comparands, IEquivalencyValidationContext context,
-        IEquivalencyValidator parent, IEquivalencyAssertionOptions config, Dictionary<string, IMember> selectedMembers)
+        IValidateChildNodeEquivalency parent, IEquivalencyOptions config, Dictionary<string, IMember> selectedMembers,
+        AssertionChain assertionChain)
     {
         // Note: The collections here are listed in the XML documentation for the DataTable.BeEquivalentTo extension
         // method in DataTableAssertions.cs. If this ever needs to change, keep them in sync.
@@ -150,7 +154,8 @@ public class DataTableEquivalencyStep : EquivalencyStep<DataTable>
         {
             if (selectedMembers.TryGetValue(collectionName, out IMember expectationMember))
             {
-                IMember matchingMember = FindMatchFor(expectationMember, comparands.Subject, context.CurrentNode, config);
+                IMember matchingMember = FindMatchFor(expectationMember, comparands.Subject, context.CurrentNode, config,
+                    assertionChain);
 
                 if (matchingMember is not null)
                 {
@@ -163,18 +168,18 @@ public class DataTableEquivalencyStep : EquivalencyStep<DataTable>
                         CompileTimeType = expectationMember.Type
                     };
 
-                    parent.RecursivelyAssertEquality(nestedComparands, nestedContext);
+                    parent.AssertEquivalencyOf(nestedComparands, nestedContext);
                 }
             }
         }
     }
 
     private static IMember FindMatchFor(IMember selectedMemberInfo, object subject, INode currentNode,
-        IEquivalencyAssertionOptions config)
+        IEquivalencyOptions config, AssertionChain assertionChain)
     {
         IEnumerable<IMember> query =
             from rule in config.MatchingRules
-            let match = rule.Match(selectedMemberInfo, subject, currentNode, config)
+            let match = rule.Match(selectedMemberInfo, subject, currentNode, config, assertionChain)
             where match is not null
             select match;
 
@@ -182,7 +187,7 @@ public class DataTableEquivalencyStep : EquivalencyStep<DataTable>
     }
 
     private static IEnumerable<IMember> GetMembersFromExpectation(INode currentNode, Comparands comparands,
-        IEquivalencyAssertionOptions config)
+        IEquivalencyOptions config)
     {
         IEnumerable<IMember> members = Enumerable.Empty<IMember>();
 

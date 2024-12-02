@@ -2,7 +2,6 @@
 using System.Data;
 using System.Diagnostics;
 using FluentAssertions.DataSets.Common;
-using FluentAssertions.Equivalency;
 using FluentAssertions.Execution;
 using FluentAssertions.Primitives;
 
@@ -15,8 +14,8 @@ namespace FluentAssertions.DataSets;
 [DebuggerNonUserCode]
 public class DataColumnAssertions : ReferenceTypeAssertions<DataColumn, DataColumnAssertions>
 {
-    public DataColumnAssertions(DataColumn dataColumn)
-        : base(dataColumn)
+    public DataColumnAssertions(DataColumn dataColumn, AssertionChain assertionChain)
+        : base(dataColumn, assertionChain)
     {
     }
 
@@ -120,23 +119,9 @@ public class DataColumnAssertions : ReferenceTypeAssertions<DataColumn, DataColu
         Guard.ThrowIfArgumentIsNull(config);
 
         var defaults = new DataEquivalencyAssertionOptions<DataColumn>(AssertionOptions.CloneDefaults<DataColumn>());
-        IDataEquivalencyAssertionOptions<DataColumn> options = config(defaults);
+        config(defaults);
 
-        var context =
-            new EquivalencyValidationContext(Node.From<DataColumn>(() => AssertionScope.Current.CallerIdentity), options)
-            {
-                Reason = new Reason(because, becauseArgs),
-                TraceWriter = options.TraceWriter
-            };
-
-        var comparands = new Comparands
-        {
-            Subject = Subject,
-            Expectation = expectation,
-            CompileTimeType = typeof(DataColumn)
-        };
-
-        new EquivalencyValidator().AssertEquality(comparands, context);
+        ((object)Subject).Should().BeEquivalentTo(expectation, _ => defaults, because, becauseArgs);
 
         return new AndConstraint<DataColumnAssertions>(this);
     }

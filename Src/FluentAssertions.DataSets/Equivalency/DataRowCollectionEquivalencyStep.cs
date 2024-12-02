@@ -10,11 +10,13 @@ namespace FluentAssertions.DataSets.Equivalency;
 public class DataRowCollectionEquivalencyStep : EquivalencyStep<DataRowCollection>
 {
     protected override EquivalencyResult OnHandle(Comparands comparands, IEquivalencyValidationContext context,
-        IEquivalencyValidator nestedValidator)
+        IValidateChildNodeEquivalency nestedValidator)
     {
+        var assertionChain = AssertionChain.GetOrCreate().For(context);
+
         if (comparands.Subject is not DataRowCollection)
         {
-            AssertionScope.Current
+            assertionChain
                 .FailWith("Expected {context:value} to be of type DataRowCollection, but found {0}",
                     comparands.Subject.GetType());
         }
@@ -30,12 +32,12 @@ public class DataRowCollectionEquivalencyStep : EquivalencyStep<DataRowCollectio
             var subject = (DataRowCollection)comparands.Subject;
             var expectation = (DataRowCollection)comparands.Expectation;
 
-            bool success = AssertionScope.Current
+            assertionChain
                 .ForCondition(subject.Count == expectation.Count)
                 .FailWith("Expected {context:DataRowCollection} to contain {0} row(s){reason}, but found {1}",
                     expectation.Count, subject.Count);
 
-            if (success)
+            if (assertionChain.Succeeded)
             {
                 switch (rowMatchMode)
                 {
@@ -44,11 +46,11 @@ public class DataRowCollectionEquivalencyStep : EquivalencyStep<DataRowCollectio
                         break;
 
                     case RowMatchMode.PrimaryKey:
-                        MatchRowsByPrimaryKeyAndCompare(nestedValidator, context, subject, expectation);
+                        MatchRowsByPrimaryKeyAndCompare(nestedValidator, context, subject, expectation, assertionChain);
                         break;
 
                     default:
-                        AssertionScope.Current.FailWith(
+                        assertionChain.FailWith(
                             "Unknown RowMatchMode {0} when trying to compare {context:DataRowCollection}", rowMatchMode);
 
                         break;
@@ -56,50 +58,51 @@ public class DataRowCollectionEquivalencyStep : EquivalencyStep<DataRowCollectio
             }
         }
 
-        return EquivalencyResult.AssertionCompleted;
+        return EquivalencyResult.EquivalencyProven;
     }
 
-    private static void MatchRowsByIndexAndCompare(IEquivalencyValidationContext context, IEquivalencyValidator parent,
+    private static void MatchRowsByIndexAndCompare(IEquivalencyValidationContext context, IValidateChildNodeEquivalency parent,
         DataRowCollection subject, DataRowCollection expectation)
     {
         for (int index = 0; index < expectation.Count; index++)
         {
             IEquivalencyValidationContext nestedContext = context.AsCollectionItem<DataRow>(index);
-            parent.RecursivelyAssertEquality(new Comparands(subject[index], expectation[index], typeof(DataRow)), nestedContext);
+            parent.AssertEquivalencyOf(new Comparands(subject[index], expectation[index], typeof(DataRow)), nestedContext);
         }
     }
 
-    private static void MatchRowsByPrimaryKeyAndCompare(IEquivalencyValidator parent, IEquivalencyValidationContext context,
-        DataRowCollection subject, DataRowCollection expectation)
+    private static void MatchRowsByPrimaryKeyAndCompare(IValidateChildNodeEquivalency parent,
+        IEquivalencyValidationContext context,
+        DataRowCollection subject, DataRowCollection expectation, AssertionChain assertionChain)
     {
         Type[] subjectPrimaryKeyTypes = null;
         Type[] expectationPrimaryKeyTypes = null;
 
         if (subject.Count > 0)
         {
-            subjectPrimaryKeyTypes = GatherPrimaryKeyColumnTypes(subject[0].Table, "subject");
+            subjectPrimaryKeyTypes = GatherPrimaryKeyColumnTypes(subject[0].Table, "subject", assertionChain);
         }
 
         if (expectation.Count > 0)
         {
-            expectationPrimaryKeyTypes = GatherPrimaryKeyColumnTypes(expectation[0].Table, "expectation");
+            expectationPrimaryKeyTypes = GatherPrimaryKeyColumnTypes(expectation[0].Table, "expectation", assertionChain);
         }
 
-        bool matchingTypes = ComparePrimaryKeyTypes(subjectPrimaryKeyTypes, expectationPrimaryKeyTypes);
+        bool matchingTypes = ComparePrimaryKeyTypes(subjectPrimaryKeyTypes, expectationPrimaryKeyTypes, assertionChain);
 
         if (matchingTypes)
         {
-            GatherRowsByPrimaryKeyAndCompareData(parent, context, subject, expectation);
+            GatherRowsByPrimaryKeyAndCompareData(parent, context, subject, expectation, assertionChain);
         }
     }
 
-    private static Type[] GatherPrimaryKeyColumnTypes(DataTable table, string comparisonTerm)
+    private static Type[] GatherPrimaryKeyColumnTypes(DataTable table, string comparisonTerm, AssertionChain assertionChain)
     {
         Type[] primaryKeyTypes = null;
 
         if (table.PrimaryKey is null or { Length: 0 })
         {
-            AssertionScope.Current
+            assertionChain
                 .FailWith(
                     "Table {0} containing {1} {context:DataRowCollection} does not have a primary key. RowMatchMode.PrimaryKey cannot be applied.",
                     table.TableName, comparisonTerm);
@@ -117,7 +120,7 @@ public class DataRowCollectionEquivalencyStep : EquivalencyStep<DataRowCollectio
         return primaryKeyTypes;
     }
 
-    private static bool ComparePrimaryKeyTypes(Type[] subjectPrimaryKeyTypes, Type[] expectationPrimaryKeyTypes)
+    private static bool ComparePrimaryKeyTypes(Type[] subjectPrimaryKeyTypes, Type[] expectationPrimaryKeyTypes, AssertionChain assertionChain)
     {
         bool matchingTypes = false;
 
@@ -135,7 +138,7 @@ public class DataRowCollectionEquivalencyStep : EquivalencyStep<DataRowCollectio
 
             if (!matchingTypes)
             {
-                AssertionScope.Current
+                assertionChain
                     .FailWith(
                         "Subject and expectation primary keys of table containing {context:DataRowCollection} do not have the same schema and cannot be compared. RowMatchMode.PrimaryKey cannot be applied.");
             }
@@ -144,8 +147,8 @@ public class DataRowCollectionEquivalencyStep : EquivalencyStep<DataRowCollectio
         return matchingTypes;
     }
 
-    private static void GatherRowsByPrimaryKeyAndCompareData(IEquivalencyValidator parent, IEquivalencyValidationContext context,
-        DataRowCollection subject, DataRowCollection expectation)
+    private static void GatherRowsByPrimaryKeyAndCompareData(IValidateChildNodeEquivalency parent, IEquivalencyValidationContext context,
+        DataRowCollection subject, DataRowCollection expectation, AssertionChain assertionChain)
     {
         var expectationRowByKey = expectation.Cast<DataRow>()
             .ToDictionary(row => ExtractPrimaryKey(row));
@@ -156,7 +159,7 @@ public class DataRowCollectionEquivalencyStep : EquivalencyStep<DataRowCollectio
 
             if (!expectationRowByKey.TryGetValue(key, out DataRow expectationRow))
             {
-                AssertionScope.Current
+                assertionChain
                     .FailWith("Found unexpected row in {context:DataRowCollection} with key {0}", key);
             }
             else
@@ -164,7 +167,7 @@ public class DataRowCollectionEquivalencyStep : EquivalencyStep<DataRowCollectio
                 expectationRowByKey.Remove(key);
 
                 IEquivalencyValidationContext nestedContext = context.AsCollectionItem<DataRow>(key.ToString());
-                parent.RecursivelyAssertEquality(new Comparands(subjectRow, expectationRow, typeof(DataRow)), nestedContext);
+                parent.AssertEquivalencyOf(new Comparands(subjectRow, expectationRow, typeof(DataRow)), nestedContext);
             }
         }
 
@@ -172,12 +175,12 @@ public class DataRowCollectionEquivalencyStep : EquivalencyStep<DataRowCollectio
         {
             if (expectationRowByKey.Count > 1)
             {
-                AssertionScope.Current
+                assertionChain
                     .FailWith("{0} rows were expected in {context:DataRowCollection} and not found", expectationRowByKey.Count);
             }
             else
             {
-                AssertionScope.Current
+                assertionChain
                     .FailWith(
                         "Expected to find a row with key {0} in {context:DataRowCollection}{reason}, but no such row was found",
                         expectationRowByKey.Keys.Single());
