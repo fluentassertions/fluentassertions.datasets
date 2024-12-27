@@ -246,7 +246,7 @@ public class DataTableSpecs : DataSpecs
 
         // Act
         Action action = () => subject.Should().BeEquivalentTo(expectation, options => options
-            .ExcludingRelated((Constraint constraint) => new object()));
+            .ExcludingRelated((Constraint _) => new object()));
 
         // Assert
         action.Should().Throw<ArgumentException>().WithMessage(
