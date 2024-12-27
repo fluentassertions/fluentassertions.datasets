@@ -4,7 +4,6 @@ using System.Linq;
 using FluentAssertions.Collections;
 using FluentAssertions.DataSets;
 using FluentAssertions.DataSets.Common;
-using FluentAssertions.Execution;
 
 // ReSharper disable once CheckNamespace
 namespace FluentAssertions;
