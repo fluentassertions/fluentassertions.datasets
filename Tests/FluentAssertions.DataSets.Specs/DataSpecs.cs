@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Xunit;
 
 namespace FluentAssertions.DataSets.Specs;
 
@@ -588,17 +589,24 @@ public class DataSpecs
         Removed,
     }
 
-    public static IEnumerable<object[]> AllChangeTypes =>
-        Enum.GetValues(typeof(ChangeType)).Cast<ChangeType>().Select(t => new object[] { t });
+    public static TheoryData<ChangeType> AllChangeTypes =>
+        new(Enum.GetValues(typeof(ChangeType)).Cast<ChangeType>());
 
-    public static IEnumerable<object[]> AllChangeTypesWithAcceptChangesValues
+    public static TheoryData<ChangeType, bool> AllChangeTypesWithAcceptChangesValues
     {
         get
         {
-            return
-                from changeType in Enum.GetValues(typeof(ChangeType)).Cast<ChangeType>()
-                from acceptChanges in new[] { true, false }
-                select new object[] { changeType, acceptChanges };
+            var result = new TheoryData<ChangeType, bool>();
+
+            foreach (var changeType in Enum.GetValues(typeof(ChangeType)).Cast<ChangeType>())
+            {
+                foreach (var acceptChanges in new[] { true, false })
+                {
+                    result.Add(changeType, acceptChanges);
+                }
+            }
+
+            return result;
         }
     }
 
