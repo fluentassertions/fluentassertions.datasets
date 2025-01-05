@@ -96,7 +96,7 @@ namespace FluentAssertions.DataSets
     }
     public static class EquivalencyAssertionOptionsExtensions
     {
-        public static void AddDataSetSupport(this FluentAssertions.EquivalencyPlan plan) { }
+        public static void AddDataSetSupport(this FluentAssertions.Equivalency.EquivalencyPlan plan) { }
     }
     public interface IDataEquivalencyAssertionOptions<T> : FluentAssertions.Equivalency.IEquivalencyOptions
     {

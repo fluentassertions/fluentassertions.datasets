@@ -228,7 +228,7 @@ public class DataSetAssertions<TDataSet> : ReferenceTypeAssertions<DataSet, Data
     /// A reference to the <see cref="IDataEquivalencyAssertionOptions{DataSet}"/> configuration object that can be used
     /// to influence the way the object graphs are compared. You can also provide an alternative instance of the
     /// <see cref="IDataEquivalencyAssertionOptions{DataSet}"/> class. The global defaults are determined by the
-    /// <see cref="AssertionOptions"/> class.
+    /// <see cref="AssertionConfiguration"/> class.
     /// </param>
     /// <param name="because">
     /// A formatted phrase as is supported by <see cref="string.Format(string,object[])" /> explaining why the assertion
@@ -244,7 +244,7 @@ public class DataSetAssertions<TDataSet> : ReferenceTypeAssertions<DataSet, Data
     {
         Guard.ThrowIfArgumentIsNull(config);
 
-        var defaults = new DataEquivalencyAssertionOptions<DataSet>(AssertionOptions.CloneDefaults<DataSet>());
+        var defaults = new DataEquivalencyAssertionOptions<DataSet>(AssertionConfiguration.Current.Equivalency.CloneDefaults<DataSet>());
         config(defaults);
 
         ((object)Subject).Should().BeEquivalentTo(expectation, _ => defaults, because, becauseArgs);

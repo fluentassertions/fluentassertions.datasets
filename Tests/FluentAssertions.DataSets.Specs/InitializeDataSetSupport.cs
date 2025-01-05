@@ -14,6 +14,6 @@ public static class InitializeDataSetSupport
     public static void Initialize()
 #pragma warning restore CA1822
     {
-        AssertionOptions.EquivalencyPlan.AddDataSetSupport();
+        AssertionConfiguration.Current.Equivalency.Plan.AddDataSetSupport();
     }
 }
