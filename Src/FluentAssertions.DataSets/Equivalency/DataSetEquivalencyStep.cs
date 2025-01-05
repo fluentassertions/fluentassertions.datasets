@@ -48,7 +48,7 @@ public class DataSetEquivalencyStep : EquivalencyStep<DataSet>
             }
 
             var selectedMembers = GetMembersFromExpectation(comparands, context.CurrentNode, context.Options)
-                .ToDictionary(member => member.Name);
+                .ToDictionary(member => member.Expectation.Name);
 
             CompareScalarProperties(subject, expectation, selectedMembers, assertionChain);
 

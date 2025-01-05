@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using System.Linq;
 using FluentAssertions.DataSets.Equivalency;
+using FluentAssertions.Equivalency;
 using FluentAssertions.Equivalency.Steps;
 
 namespace FluentAssertions.DataSets;

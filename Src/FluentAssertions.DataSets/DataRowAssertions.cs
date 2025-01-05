@@ -174,7 +174,7 @@ public class DataRowAssertions<TDataRow> : ReferenceTypeAssertions<TDataRow, Dat
     /// A reference to the <see cref="IDataEquivalencyAssertionOptions{DataRow}"/> configuration object that can be used
     /// to influence the way the object graphs are compared. You can also provide an alternative instance of the
     /// <see cref="IDataEquivalencyAssertionOptions{DataRow}"/> class. The global defaults are determined by the
-    /// <see cref="AssertionOptions"/> class.
+    /// <see cref="AssertionConfiguration"/> class.
     /// </param>
     /// <param name="because">
     /// A formatted phrase as is supported by <see cref="string.Format(string,object[])" /> explaining why the assertion
@@ -190,7 +190,7 @@ public class DataRowAssertions<TDataRow> : ReferenceTypeAssertions<TDataRow, Dat
     {
         Guard.ThrowIfArgumentIsNull(config);
 
-        var defaults = new DataEquivalencyAssertionOptions<DataRow>(AssertionOptions.CloneDefaults<DataRow>());
+        var defaults = new DataEquivalencyAssertionOptions<DataRow>(AssertionConfiguration.Current.Equivalency.CloneDefaults<DataRow>());
         config(defaults);
 
         ((object)Subject).Should().BeEquivalentTo(expectation, _ => defaults, because, becauseArgs);

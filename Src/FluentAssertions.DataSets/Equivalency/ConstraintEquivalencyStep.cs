@@ -28,7 +28,7 @@ public class ConstraintEquivalencyStep : EquivalencyStep<Constraint>
             var expectation = (Constraint)comparands.Expectation;
 
             var selectedMembers = GetMembersFromExpectation(comparands, context.CurrentNode, context.Options)
-                .ToDictionary(member => member.Name);
+                .ToDictionary(member => member.Expectation.Name);
 
             CompareCommonProperties(context, nestedValidator, context.Options, subject, expectation, selectedMembers, assertionChain);
 

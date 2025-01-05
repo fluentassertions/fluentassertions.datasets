@@ -52,7 +52,7 @@ public class DataTableEquivalencyStep : EquivalencyStep<DataTable>
             }
 
             var selectedMembers = GetMembersFromExpectation(context.CurrentNode, comparands, context.Options)
-                .ToDictionary(member => member.Name);
+                .ToDictionary(member => member.Expectation.Name);
 
             CompareScalarProperties(subject, expectation, selectedMembers, assertionChain);
 

@@ -102,7 +102,7 @@ public class DataColumnAssertions : ReferenceTypeAssertions<DataColumn, DataColu
     /// A reference to the <see cref="IDataEquivalencyAssertionOptions{DataColumn}"/> configuration object that can be used
     /// to influence the way the object graphs are compared. You can also provide an alternative instance of the
     /// <see cref="IDataEquivalencyAssertionOptions{DataColumn}"/> class. The global defaults are determined by the
-    /// <see cref="AssertionOptions"/> class.
+    /// <see cref="AssertionConfiguration"/> class.
     /// </param>
     /// <param name="because">
     /// A formatted phrase as is supported by <see cref="string.Format(string,object[])" /> explaining why the assertion
@@ -118,7 +118,7 @@ public class DataColumnAssertions : ReferenceTypeAssertions<DataColumn, DataColu
     {
         Guard.ThrowIfArgumentIsNull(config);
 
-        var defaults = new DataEquivalencyAssertionOptions<DataColumn>(AssertionOptions.CloneDefaults<DataColumn>());
+        var defaults = new DataEquivalencyAssertionOptions<DataColumn>(AssertionConfiguration.Current.Equivalency.CloneDefaults<DataColumn>());
         config(defaults);
 
         ((object)Subject).Should().BeEquivalentTo(expectation, _ => defaults, because, becauseArgs);

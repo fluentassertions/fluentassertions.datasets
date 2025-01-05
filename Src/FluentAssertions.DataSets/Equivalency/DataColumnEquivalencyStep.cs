@@ -64,7 +64,7 @@ public class DataColumnEquivalencyStep : EquivalencyStep<DataColumn>
         {
             foreach (IMember expectationMember in GetMembersFromExpectation(context.CurrentNode, comparands, context.Options))
             {
-                if (expectationMember.Name != nameof(subject.Table))
+                if (expectationMember.Expectation.Name != nameof(subject.Table))
                 {
                     CompareMember(expectationMember, comparands, parent, context, assertionChain);
                 }
@@ -139,6 +139,6 @@ public class DataColumnEquivalencyStep : EquivalencyStep<DataColumn>
                 new MemberSelectionContext(comparands.CompileTimeType, comparands.RuntimeType, config));
         }
 
-        return members.Where(member => CandidateMembers.Contains(member.Name));
+        return members.Where(member => CandidateMembers.Contains(member.Expectation.Name));
     }
 }

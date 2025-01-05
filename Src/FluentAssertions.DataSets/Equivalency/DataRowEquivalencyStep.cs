@@ -210,8 +210,8 @@ public class DataRowEquivalencyStep : EquivalencyStep<DataRow>
 
             selectedDataRowMembers = new SelectedDataRowMembers
             {
-                HasErrors = selectedMembers.Any(m => m.Name == nameof(DataRow.HasErrors)),
-                RowState = selectedMembers.Any(m => m.Name == nameof(DataRow.RowState))
+                HasErrors = selectedMembers.Any(m => m.Expectation.Name == nameof(DataRow.HasErrors)),
+                RowState = selectedMembers.Any(m => m.Expectation.Name == nameof(DataRow.RowState))
             };
 
             SelectedMembersCache.TryAdd(cacheKey, selectedDataRowMembers);

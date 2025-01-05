@@ -21,7 +21,7 @@ public static class InitializeDataSetSupport
     {
         lock (SyncObject)
         {
-            AssertionOptions.EquivalencyPlan.AddDataSetSupport();
+            AssertionConfiguration.Current.Equivalency.Plan.AddDataSetSupport();
         }
     }
 }
