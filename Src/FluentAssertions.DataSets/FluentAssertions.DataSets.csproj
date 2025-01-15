@@ -14,17 +14,18 @@
   </PropertyGroup>
 
   <PropertyGroup Label="Package info">
-    <Authors>Dennis Doomen;Jonathan Gilbert</Authors>
+    <Authors>Dennis Doomen</Authors>
     <PackageDescription>
-      Extensions to Fluent Assertions for dealing with DataSets and DataTables.
+      Extensions to Fluent Assertions 8+ for dealing with DataSets and DataTables.
     </PackageDescription>
     <PackageProjectUrl>https://www.fluentassertions.com</PackageProjectUrl>
     <RepositoryUrl>https://github.com/fluentassertions/fluentassertions.datasets</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
+    <PackageReadmeFile>readme.md</PackageReadmeFile>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageIcon>FluentAssertions.png</PackageIcon>
-    <PackageReleaseNotes>See https://fluentassertions.com/releases/</PackageReleaseNotes>
-    <Copyright>Copyright Dennis Doomen 2010-$([System.DateTime]::Now.ToString(yyyy))</Copyright>
+    <PackageReleaseNotes>https://github.com/fluentassertions/fluentassertions.datasets/releases</PackageReleaseNotes>
+    <Copyright>Copyright 2024-$([System.DateTime]::Now.ToString(yyyy)) Xceed Software Inc., all rights reserved</Copyright>
   </PropertyGroup>
 
   <ItemGroup Label="Internals visible to">
@@ -35,6 +36,7 @@
 
   <ItemGroup Label="Package files">
     <None Include="..\FluentAssertions.png" Pack="true" Visible="false" PackagePath="" />
+    <None Include="..\..\readme.md" Pack="true" Visible="false" PackagePath="" />
   </ItemGroup>
 
   <ItemGroup Label="Analyzers">
