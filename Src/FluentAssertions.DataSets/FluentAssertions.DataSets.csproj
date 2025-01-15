@@ -14,7 +14,7 @@
   </PropertyGroup>
 
   <PropertyGroup Label="Package info">
-    <Authors>Dennis Doomen</Authors>
+    <Authors>Dennis Doomen;Jonathan Gilbert</Authors>
     <PackageDescription>
       Extensions to Fluent Assertions 8+ for dealing with DataSets and DataTables.
     </PackageDescription>
