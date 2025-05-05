@@ -306,8 +306,8 @@ public class DataSpecs
                 foreach (var constraint in typedTable.Constraints.Cast<Constraint>())
                 {
                     if (!Relations.Cast<DataRelation>().Any(rel =>
-                            rel.ChildKeyConstraint == constraint ||
-                            rel.ParentKeyConstraint == constraint))
+                            ReferenceEquals(rel.ChildKeyConstraint, constraint) ||
+                            ReferenceEquals(rel.ParentKeyConstraint, constraint)))
                     {
                         if (constraint is UniqueConstraint uniqueConstraint)
                         {
