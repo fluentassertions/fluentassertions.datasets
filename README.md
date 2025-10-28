@@ -18,7 +18,7 @@ Extends https://www.fluentassertions.com with specialized assertions for dealing
 > This set of extensions was extracted from Fluent Assertions 8 and is in maintenance mode. Pull Requests will still be accepted, but we will not actively work on improvements or bugs.
 
 # Information
-* Uses [Semantic Versioning](https://semver.org/lang/nl/)
+* Uses [Semantic Versioning](https://semver.org/)
 * Uses Githubflow, so pull requests usually result in a new release
 * The contribution guidelines are described [here](CONTRIBUTING.md).
 
@@ -32,10 +32,10 @@ This package is shipped as a [NuGet package](https://www.nuget.org/packages/Flue
 
 ## Prerequisites
 
-* Visual Studio 2022 or JetBrains Rider 2021.3
-* Build Tools 2022 (including the Universal Windows Platform build tools).
+* Visual Studio 2022 17.14.+ or JetBrains Rider 2024.3
+* Build Tools 2022.
 * .NET Framework 4.7 SDK
-* .NET 8.0 SDK installed. Check the `global.json`` for the current minimum required version.
+* .NET 9.0 SDK installed. Check the `global.json`` for the current minimum required version.
 
 ## Building
 
