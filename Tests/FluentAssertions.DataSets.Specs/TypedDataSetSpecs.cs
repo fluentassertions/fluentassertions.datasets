@@ -338,7 +338,11 @@ public class TypedDataSetSpecs : DataSpecs
         dataSet1.Should().BeEquivalentTo(dataSet2, options => options.Excluding(dataSet => dataSet.Prefix));
     }
 
+#if NET8_0_OR_GREATER
+    [Fact(Skip = "SerializationFormat.Binary is not supported on .NET 8+")]
+#else
     [Fact]
+#endif
     public void When_RemotingFormat_does_not_match_and_property_is_not_excluded_it_should_fail()
     {
         // Arrange
@@ -358,7 +362,11 @@ public class TypedDataSetSpecs : DataSpecs
         action.Should().Throw<XunitException>();
     }
 
+#if NET8_0_OR_GREATER
+    [Fact(Skip = "SerializationFormat.Binary is not supported on .NET 8+")]
+#else
     [Fact]
+#endif
     public void When_RemotingFormat_does_not_match_and_property_is_excluded_it_should_succeed()
     {
         // Arrange

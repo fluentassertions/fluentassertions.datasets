@@ -2,7 +2,7 @@
 
   <!-- To reduce build times, we only enable analyzers for the newest TFM -->
   <PropertyGroup>
-    <TargetFrameworks>net47;net6.0</TargetFrameworks>
+    <TargetFrameworks>net47;net8.0</TargetFrameworks>
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>FluentAssertions.snk</AssemblyOriginatorKeyFile>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
