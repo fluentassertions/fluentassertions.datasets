@@ -118,14 +118,15 @@ class Build : NukeBuild
         {
             Project project = Solution.Specs.Approval_Tests;
 
-            DotNetTest(s => s
+            DotNetBuild(s => s
+                .SetProjectFile(project)
                 .SetConfiguration(Configuration.Release)
                 .SetProcessEnvironmentVariable("DOTNET_CLI_UI_LANGUAGE", "en-US")
-                .EnableNoBuild()
-                .SetResultsDirectory(TestResultsDirectory)
-                .CombineWith(cc => cc
-                    .SetProjectFile(project)
-                    .AddLoggers($"trx;LogFileName={project.Name}.trx")), completeOnFailure: true);
+                .EnableNoRestore()
+                .SetProperty(
+                    "TestingPlatformCommandLineArguments",
+                    $"--report-xunit-trx --report-xunit-trx-filename {project.Name}.trx --results-directory {TestResultsDirectory}")
+                .AddProcessAdditionalArguments("-t:Test"));
 
             ReportTestOutcome(globFilters: $"*{project.Name}.trx");
         });
