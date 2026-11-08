@@ -1,7 +1,6 @@
 # FluentAssertions for DataSets
 
 [![](https://img.shields.io/github/actions/workflow/status/fluentassertions/fluentassertions.datasets/build.yml?branch=main)](https://github.com/fluentassertions/fluentassertions.datasets/actions?query=branch%3Amain)
-[![Coveralls branch](https://img.shields.io/coverallsCoverage/github/fluentassertions/fluentassertions.datasets?branch=develop)](https://coveralls.io/github/fluentassertions/fluentassertions.datasets?branch=develop)
 [![](https://img.shields.io/github/release/FluentAssertions.Datasets/FluentAssertions.Datasets.svg?label=latest%20release&color=007edf)](https://github.com/FluentAssertions/FluentAssertions.DataSets/releases/latest)
 [![](https://img.shields.io/nuget/dt/FluentAssertions.DataSets.svg?label=downloads&color=007edf&logo=nuget)](https://www.nuget.org/packages/FluentAssertions.DataSets)
 [![](https://img.shields.io/librariesio/dependents/nuget/FluentAssertions.DataSets.svg?label=dependent%20libraries)](https://libraries.io/nuget/FluentAssertions.DataSets)
