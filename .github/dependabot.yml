@@ -19,7 +19,6 @@ updates:
       xunit:
         patterns:
           - "xunit*"
-          - "Verify*"
       nuke:
         patterns:
           - "Nuke*"

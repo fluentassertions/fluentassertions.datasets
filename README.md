@@ -42,9 +42,9 @@ This package is shipped as a [NuGet package](https://www.nuget.org/packages/Flue
 You can either build the solution using Visual Studio or Rider, or use the `build.ps1` script to kick-off the [Nuke](https://nuke.build/) build process. This will build the package and run all tests.
 
 ## Approval Tests
-This is a special set of tests that use the [Verify](https://github.com/VerifyTests/Verify) project to verify whether you've introduced any breaking changes in the public API of the library.
+This is a special set of tests that use the [PublicApiGenerator](https://github.com/PublicApiGenerator/PublicApiGenerator) and [DiffPlex](https://github.com/mmanela/diffplex) projects to verify whether you've introduced any breaking changes in the public API of the library.
 
-If you've verified the changes and decided they are valid, you can accept them  using `AcceptApiChanges.ps1` or `AcceptApiChanges.sh`. Alternatively, you can use the [Verify Support](https://plugins.jetbrains.com/plugin/17240-verify-support) plug-in to compare the changes and accept them right from inside Rider. See also the [Contribution Guidelines](CONTRIBUTING.md).
+If you've verified the changes and decided they are valid, you can accept them  using `AcceptApiChanges.ps1` or `AcceptApiChanges.sh`. See also the [Contribution Guidelines](CONTRIBUTING.md).
 
 
 # Usage
